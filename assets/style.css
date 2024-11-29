@@ -1,0 +1,42 @@
+html, body {
+  height: 100%;   
+  font-family: "Merriweather", serif;
+  margin: 0; /* Elimina márgenes */
+  display: flex;
+  flex-direction: column; /* Ordena los elementos verticalmente */
+}
+
+.main-content {
+  flex: 1; /* Hace que este elemento ocupe todo el espacio disponible */
+}
+
+.merriweather-regular {
+	font-family: "Merriweather", serif;
+	font-weight: 400;
+	font-style: normal;
+}
+
+.links{
+	font-family: "Merriweather", serif;
+	font-weight: 400;
+	font-style: normal;
+	font-size: 20px;
+	color: #382757;
+}
+
+.footer {
+  background-color: #261644;
+  color: #fff;
+  text-align: center; 
+  padding: 8px 0;
+  font-size: 14px;
+}
+
+.footer a {
+  color: #fdd8f4;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
