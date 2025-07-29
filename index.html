@@ -7,8 +7,8 @@
 	<link rel="icon" href="assets/icons/favicon.ico" />
 	<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/android-chrome-192x192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="assets/icons/android-chrome-512x512.png">    
-	
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/icons/android-chrome-512x512.png">
+
 	<!-- Fonts -->
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,25 +32,83 @@
 	<link rel="stylesheet" href="assets/style.css">
 </head>
 <body class="bg-light">
+
 <div class="main-content">
-	<!-- Navbar -->
-	<nav class="navbar navbar-light bg-light">
-		<div class="container-fluid">
-			<span class="navbar-brand mx-auto h1">
-				<img src="assets/titol.png" class="img-fluid w-100 w-lg-50" alt="Logo" onclick="mostrarPrincial()" style="cursor: pointer;" />
-			</span>
-		</div>
-	</nav>
-  
+
+	<!-- Títol -->
+	<div class="titolDivertit mx-auto" onclick="mostrarPrincial()">
+		<svg id="square" viewBox="0 0 700 50" preserveAspectRatio="xMidYMid meet">
+			<g transform="translate(0,0)">
+				<rect class="letter" height="50" width="50"></rect>
+				<text x="25" y="35" font-family="Helvetica" text-anchor="middle" font-size="25" fill="#450359">M</text>
+			</g>
+			<g transform="translate(50,0)">
+				<rect class="letter" height="50" width="50"></rect>
+				<text x="25" y="35" font-family="Helvetica" text-anchor="middle" font-size="25" fill="#450359">O</text>
+			</g>
+			<g transform="translate(100,0)">
+				<rect class="letter" height="50" width="50"></rect>
+				<text x="25" y="35" font-family="Helvetica" text-anchor="middle" font-size="25" fill="#450359">T</text>
+			</g>
+			<g transform="translate(150,0)">
+				<rect class="letter" height="50" width="50"></rect>
+				<text x="25" y="35" font-family="Helvetica" text-anchor="middle" font-size="25" fill="#450359">S</text>
+			</g>
+
+			<g transform="translate(200,0)">
+				<rect height="50" width="50" stroke-width="2" stroke="#333333" fill="#333333"></rect>
+			</g>
+
+			<g transform="translate(250,0)">
+				<rect class="letter" height="50" width="50"></rect>
+				<text x="25" y="35" font-family="Helvetica" text-anchor="middle" font-size="25" fill="#450359">E</text>
+			</g>
+			<g transform="translate(300,0)">
+				<rect class="letter" height="50" width="50"></rect>
+				<text x="25" y="35" font-family="Helvetica" text-anchor="middle" font-size="25" fill="#450359">N</text>
+			</g>
+			<g transform="translate(350,0)">
+				<rect class="letter" height="50" width="50"></rect>
+				<text x="25" y="35" font-family="Helvetica" text-anchor="middle" font-size="25" fill="#450359">C</text>
+			</g>
+			<g transform="translate(400,0)">
+				<rect class="letter" height="50" width="50"></rect>
+				<text x="25" y="35" font-family="Helvetica" text-anchor="middle" font-size="25" fill="#450359">R</text>
+			</g>
+			<g transform="translate(450,0)">
+				<rect class="letter" height="50" width="50"></rect>
+				<text x="25" y="35" font-family="Helvetica" text-anchor="middle" font-size="25" fill="#450359">E</text>
+			</g>
+			<g transform="translate(500,0)">
+				<rect class="letter" height="50" width="50"></rect>
+				<text x="25" y="35" font-family="Helvetica" text-anchor="middle" font-size="25" fill="#450359">U</text>
+			</g>
+			<g transform="translate(550,0)">
+				<rect class="letter" height="50" width="50"></rect>
+				<text x="25" y="35" font-family="Helvetica" text-anchor="middle" font-size="25" fill="#450359">A</text>
+			</g>
+			<g transform="translate(600,0)">
+				<rect class="letter" height="50" width="50"></rect>
+				<text x="25" y="35" font-family="Helvetica" text-anchor="middle" font-size="25" fill="#450359">T</text>
+			</g>
+			<g transform="translate(650,0)">
+				<rect class="letter" height="50" width="50"></rect>
+				<text x="25" y="35" font-family="Helvetica" text-anchor="middle" font-size="25" fill="#450359">S</text>
+			</g>
+		</svg>
+	</div>
+
+	<p class="text-center">Tria el teu repte </p>
+
 	<!-- Enllaços -->
-	<div class="container-fluid d-flex justify-content-center gap-2">
-		<button id="btnXicotets" class="btn btn-link links" onclick="mostrarMots('xicotets')">Xicotets</button>
-		<button id="btnGrans" class="btn btn-link links" onclick="mostrarMots('grans')">Grans</button>		
+	<div class="container-fluid d-flex justify-content-center gap-2 my-4">
+		<button id="btnXicotets" class="btn btn-crossword px-4 py-2" onclick="mostrarMots('xicotets')">Crossetes</button>
+		<button id="btnGrans" class="btn btn-crossword-outline px-4 py-2" onclick="mostrarMots('grans')">Crossots</button>
 	</div>
 
 
 	<!-- Llista mots encreuats xicotets -->
-	<div id="xicotets" style="display: none;">  
+	<div id="xicotets" style="display: none;">
 		<div style="position: relative; text-align: center;"><div class="pm-embed-div" data-set="8db75f5c6324ce300b218582ca596253af7f4b751fe8712234c0a3b1a624fa16" data-page="date-picker" data-embedparams="embed=js&style=3" data-height="700px" data-mobileMargin="10px"></div>
 		<!-- <div class="pm-attribution-div" style="font-family: sans-serif; font-size: 12px; color: rgb(102, 102, 102); position: absolute; top: 100%; left: 50%; transform: translate(-50%, 0px); padding-top: 5px; width: 100%;">Creat amb el <a href="https://amuselabs.com/" target="_blank" style="color: #666666; text-decoration: underline;">creador de jocs</a> en línia d'Amuselabs</div> -->
 		</div>
@@ -61,7 +119,12 @@
 		<div style="position: relative; text-align: center;"><div class="pm-embed-div" data-set="da7589cf209fc4c6bcb7131392ec32f8079368fa99fe39dd9860d90bddcbb0db" data-page="date-picker" data-embedparams="embed=js&style=3" data-height="700px" data-mobileMargin="10px"></div><div class="pm-attribution-div" style="font-family: sans-serif; font-size: 12px; color: rgb(102, 102, 102); position: absolute; top: 100%; left: 50%; transform: translate(-50%, 0px); padding-top: 5px; width: 100%;">Built with the free <a href="https://amuselabs.com/" target="_blank" style="color: #666666; text-decoration: underline;">puzzle creator</a> from Amuse Labs</div></div>
 
 	</div>
+
+
 </div>
+
+<!-- Footer -->
+<footer class="footer">© 2025 Anna</footer>
 
 <script>
 function mostrarMots(id) {
@@ -69,8 +132,8 @@ function mostrarMots(id) {
 	document.getElementById('grans').style.display = 'none';
 	document.getElementById(id).style.display = 'block';
 
-	document.getElementById('btnXicotets').style.display = 'none';
-	document.getElementById('btnGrans').style.display = 'none';
+	//document.getElementById('btnXicotets').style.display = 'none';
+	//document.getElementById('btnGrans').style.display = 'none';
 	document.getElementById('footer').style.display = 'none';
 }
 

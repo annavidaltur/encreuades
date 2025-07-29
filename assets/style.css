@@ -1,13 +1,20 @@
+/*
+ #dc8add: morat clar (lletra actual)
+ #333333: quadrat negre
+ #e7e7e7: gris grid
+ #450359: morat oscur
+*/
+
 html, body {
   height: 100%;   
-  font-family: "Merriweather", serif;
-  margin: 0; /* Elimina márgenes */
+  font-family: "Arial", serif;
+  margin: 0;
   display: flex;
-  flex-direction: column; /* Ordena los elementos verticalmente */
+  flex-direction: column; 
 }
 
 .main-content {
-  flex: 1; /* Hace que este elemento ocupe todo el espacio disponible */
+  flex: 1; 
 }
 
 .merriweather-regular {
@@ -16,27 +23,75 @@ html, body {
 	font-style: normal;
 }
 
-.links{
-	font-family: "Merriweather", serif;
-	font-weight: 400;
-	font-style: normal;
-	font-size: 20px;
-	color: #382757;
-}
-
 .footer {
-  background-color: #261644;
+  background-color: #450359;
   color: #fff;
   text-align: center; 
   padding: 8px 0;
   font-size: 14px;
 }
 
-.footer a {
-  color: #fdd8f4;
-  text-decoration: none;
+.btn-crossword{
+  background-color:#450359;
+  border: 2px solid #450359;
+  color: #fff;
+  border-radius: 0;
+  font-size: 1.1rem;
+  transition: all 0.2 ease-in-out;
 }
 
-.footer a:hover {
-  text-decoration: underline;
+.btn-crossword:hover{
+  background-color: #dc8add;
+  border-color: #450359;
+  color: #450359;
+}
+
+.btn-crossword-outline{
+  background-color: transparent;
+  border: 2px solid #450359;
+  color: #450359;
+  border-radius: 0;
+  font-size: 1.1rem;
+  transition: all 0.2 ease-in-out;
+}
+
+.btn-crossword-outline:hover{
+  background-color: #dc8add;
+  border-color: #450359;
+  color: #450359;
+}
+
+.btn-crossword:active,
+.btn-crossword-outline:active{
+  transform: scale(0.97)
+}
+
+.titolDivertit {
+  width: 100%;          
+  max-width: 800px;       
+  border: 1px solid #333;
+  justify-content: center;
+  margin-top: 10px;
+  margin-bottom: 20px; 
+}
+
+.titolDivertit svg {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 14 / 1;   
+}
+
+#square{
+    cursor:pointer;
+}
+
+.letter{
+  stroke: #333333;
+  fill: transparent;
+  transition: fill 0.3s;
+  stroke-width: 2;
+  min-height: 50px;
+}
+g:hover rect.letter{
+  fill: #dc8add;
 }
