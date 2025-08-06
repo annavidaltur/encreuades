@@ -1,0 +1,27 @@
+{
+  "name": "encreuades",
+  "version": "1.0.0",
+  "description": "mots encreuats en valencià",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/annavidaltur/encreuades.git"
+  },
+  "keywords": [
+    "crossword"
+  ],
+  "author": "anna",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/annavidaltur/encreuades/issues"
+  },
+  "homepage": "https://github.com/annavidaltur/encreuades#readme"
+}

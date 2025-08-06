@@ -107,19 +107,54 @@
 	</div>
 
 
-	<!-- Llista mots encreuats xicotets -->
+	<!-- Llista mots encreuats xicotets 
 	<div id="xicotets" style="display: none;">
 		<div style="position: relative; text-align: center;"><div class="pm-embed-div" data-set="8db75f5c6324ce300b218582ca596253af7f4b751fe8712234c0a3b1a624fa16" data-page="date-picker" data-embedparams="embed=js&style=3" data-height="700px" data-mobileMargin="10px"></div>
-		<!-- <div class="pm-attribution-div" style="font-family: sans-serif; font-size: 12px; color: rgb(102, 102, 102); position: absolute; top: 100%; left: 50%; transform: translate(-50%, 0px); padding-top: 5px; width: 100%;">Creat amb el <a href="https://amuselabs.com/" target="_blank" style="color: #666666; text-decoration: underline;">creador de jocs</a> en línia d'Amuselabs</div> -->
 		</div>
 	</div>
-
-	<!-- Llista mots encreuats grans -->
+-->
+	<!-- Llista mots encreuats grans 
 	<div id="grans" style="display: none;">
 		<div style="position: relative; text-align: center;"><div class="pm-embed-div" data-set="da7589cf209fc4c6bcb7131392ec32f8079368fa99fe39dd9860d90bddcbb0db" data-page="date-picker" data-embedparams="embed=js&style=3" data-height="700px" data-mobileMargin="10px"></div><div class="pm-attribution-div" style="font-family: sans-serif; font-size: 12px; color: rgb(102, 102, 102); position: absolute; top: 100%; left: 50%; transform: translate(-50%, 0px); padding-top: 5px; width: 100%;">Built with the free <a href="https://amuselabs.com/" target="_blank" style="color: #666666; text-decoration: underline;">puzzle creator</a> from Amuse Labs</div></div>
 
-	</div>
+	</div>-->
 
+
+	 <select id="puzzleSelect"></select>
+  <div id="board"></div>
+  
+  <script>
+    async function carregarPuzzles() {
+      const res = await fetch("/api/crosswords");
+      const puzzles = await res.json();
+      const select = document.getElementById("puzzleSelect");
+      puzzles.forEach(id => {
+        const opt = document.createElement("option");
+        opt.value = id;
+        opt.textContent = `Puzzle ${id}`;
+        select.appendChild(opt);
+      });
+      select.addEventListener("change", e => carregarPuzzle(e.target.value));
+      carregarPuzzle(puzzles[0]); // carrega el primer
+    }
+
+    async function carregarPuzzle(id) {
+      const res = await fetch(`/api/crossword/${id}`);
+      const puzzle = await res.json();
+      const board = document.getElementById("board");
+      board.style.gridTemplateColumns = `repeat(${puzzle.width}, 40px)`;
+      board.innerHTML = "";
+      for (let i=0; i<puzzle.width * puzzle.height; i++) {
+        const input = document.createElement("input");
+        input.className = "cell";
+        input.maxLength = 1;
+        board.appendChild(input);
+      }
+      console.log("Carregat puzzle:", puzzle.title);
+    }
+
+    carregarPuzzles();
+  </script>
 
 </div>
 
