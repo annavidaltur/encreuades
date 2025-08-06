@@ -17,16 +17,6 @@
 	<!-- Bootstrap CSS -->
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 
-	<!-- CryptoJS Library -->
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-
-	<!-- PuzzleMe -->
-	<script id="pm-script" src="https://puzzleme.amuselabs.com/pmm/js/puzzleme-embed.js"></script>
-	<script>
-		PM_Config.PM_BasePath = "https://puzzleme.amuselabs.com/pmm/";
-	</script>
-
-
 
 	<!-- Estils -->
 	<link rel="stylesheet" href="assets/style.css">
@@ -107,54 +97,70 @@
 	</div>
 
 
-	<!-- Llista mots encreuats xicotets 
-	<div id="xicotets" style="display: none;">
-		<div style="position: relative; text-align: center;"><div class="pm-embed-div" data-set="8db75f5c6324ce300b218582ca596253af7f4b751fe8712234c0a3b1a624fa16" data-page="date-picker" data-embedparams="embed=js&style=3" data-height="700px" data-mobileMargin="10px"></div>
-		</div>
-	</div>
--->
-	<!-- Llista mots encreuats grans 
-	<div id="grans" style="display: none;">
-		<div style="position: relative; text-align: center;"><div class="pm-embed-div" data-set="da7589cf209fc4c6bcb7131392ec32f8079368fa99fe39dd9860d90bddcbb0db" data-page="date-picker" data-embedparams="embed=js&style=3" data-height="700px" data-mobileMargin="10px"></div><div class="pm-attribution-div" style="font-family: sans-serif; font-size: 12px; color: rgb(102, 102, 102); position: absolute; top: 100%; left: 50%; transform: translate(-50%, 0px); padding-top: 5px; width: 100%;">Built with the free <a href="https://amuselabs.com/" target="_blank" style="color: #666666; text-decoration: underline;">puzzle creator</a> from Amuse Labs</div></div>
-
-	</div>-->
-
-
-	 <select id="puzzleSelect"></select>
-  <div id="board"></div>
+	<div id="puzzleSelect"></div>
+  	<div id="board"></div>
   
-  <script>
-    async function carregarPuzzles() {
-      const res = await fetch("/api/crosswords");
-      const puzzles = await res.json();
-      const select = document.getElementById("puzzleSelect");
-      puzzles.forEach(id => {
-        const opt = document.createElement("option");
-        opt.value = id;
-        opt.textContent = `Puzzle ${id}`;
-        select.appendChild(opt);
-      });
-      select.addEventListener("change", e => carregarPuzzle(e.target.value));
-      carregarPuzzle(puzzles[0]); // carrega el primer
-    }
+	<script>
+		async function carregarPuzzles() {
+		const res = await fetch("/api/crosswords");
+		const puzzles = await res.json();
+		const select = document.getElementById("puzzleSelect");
+		puzzles.forEach(puzzle => {
+			const puzDiv = document.createElement("div");
+			puzDiv.classList.add("puzDiv");
 
-    async function carregarPuzzle(id) {
-      const res = await fetch(`/api/crossword/${id}`);
-      const puzzle = await res.json();
-      const board = document.getElementById("board");
-      board.style.gridTemplateColumns = `repeat(${puzzle.width}, 40px)`;
-      board.innerHTML = "";
-      for (let i=0; i<puzzle.width * puzzle.height; i++) {
-        const input = document.createElement("input");
-        input.className = "cell";
-        input.maxLength = 1;
-        board.appendChild(input);
-      }
-      console.log("Carregat puzzle:", puzzle.title);
-    }
+			// part esquerra
+			const left = document.createElement("div");
+			left.classList.add("puzLeft");
 
-    carregarPuzzles();
-  </script>
+			// data
+			const date = document.createElement("p");
+			date.classList.add("pDate");
+			const puzzleDate = new Date(puzzle.date);
+			date.textContent = puzzleDate.toLocaleDateString("ca-ES", {day: "numeric", month: "long", year: "numeric"});
+
+			// títol + author
+			const sp = document.createElement("span");
+			sp.classList.add("spTitleAuthor");
+			sp.textContent = puzzle.title + " / " + puzzle.author;
+
+			// afegir titol i author a divPuz
+			left.appendChild(date);
+			left.appendChild(sp)
+
+			// icona >
+			const arrow = document.createElement("span");
+			arrow.classList.add("puzArrow");
+			arrow.textContent = "›";
+
+			// muntar puzDiv
+			puzDiv.appendChild(left);
+			puzDiv.appendChild(arrow);
+
+			// afegir divPuz al divParent
+			select.appendChild(puzDiv);
+		});
+		select.addEventListener("change", e => carregarPuzzle(e.target.value));
+		carregarPuzzle(puzzles[0]); // carrega el primer
+		}
+
+		async function carregarPuzzle(id) {
+		const res = await fetch(`/api/crossword/${id}`);
+		const puzzle = await res.json();
+		const board = document.getElementById("board");
+		board.style.gridTemplateColumns = `repeat(${puzzle.width}, 40px)`;
+		board.innerHTML = "";
+		for (let i=0; i<puzzle.width * puzzle.height; i++) {
+			const input = document.createElement("input");
+			input.className = "cell";
+			input.maxLength = 1;
+			board.appendChild(input);
+		}
+		console.log("Carregat puzzle:", puzzle.title);
+		}
+
+		carregarPuzzles();
+	</script>
 
 </div>
 

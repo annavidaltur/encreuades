@@ -95,3 +95,35 @@ html, body {
 g:hover rect.letter{
   fill: #dc8add;
 }
+
+
+.puzDiv{
+  border-top: 1px solid #949494;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.puzLeft{
+  display: flex;
+  flex-direction: column;
+}
+
+.puzArrow{
+  font-size: 2.5rem;
+  color: #333333
+}
+
+.pDate {
+  color: #000000;
+  font-weight: bold;
+  font-size: 20px;
+  margin-bottom: 0;
+}
+
+.spTitleAuthor{
+  font-style: italic;
+  color: #333333;
+}
