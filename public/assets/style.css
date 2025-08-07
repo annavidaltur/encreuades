@@ -104,11 +104,23 @@ g:hover rect.letter{
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
+  background-color: #fff;
+}
+.puzDiv:hover{
+  background-color: rgb(230, 230, 230);
 }
 
 .puzLeft{
   display: flex;
-  flex-direction: column;
+  flex-direction: row;  
+  align-items: center;
+}
+
+.puzIcon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  margin-right: 20px;
 }
 
 .puzArrow{

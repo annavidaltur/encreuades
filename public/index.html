@@ -113,20 +113,30 @@
 			const left = document.createElement("div");
 			left.classList.add("puzLeft");
 
+			// imatge
+			const left1 = document.createElement("div");
+			const img = document.createElement("img");
+			img.src="assets/icons/web-app-manifest-512x512.png"
+			img.classList.add("puzIcon");
+			left1.appendChild(img);
+
 			// data
+			const left2 = document.createElement("div");
 			const date = document.createElement("p");
 			date.classList.add("pDate");
 			const puzzleDate = new Date(puzzle.date);
 			date.textContent = puzzleDate.toLocaleDateString("ca-ES", {day: "numeric", month: "long", year: "numeric"});
+			left2.appendChild(date);
 
 			// títol + author
 			const sp = document.createElement("span");
 			sp.classList.add("spTitleAuthor");
 			sp.textContent = puzzle.title + " / " + puzzle.author;
+			left2.appendChild(sp);
 
 			// afegir titol i author a divPuz
-			left.appendChild(date);
-			left.appendChild(sp)
+			left.appendChild(left1)
+			left.appendChild(left2);
 
 			// icona >
 			const arrow = document.createElement("span");
