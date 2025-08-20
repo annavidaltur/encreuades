@@ -1,0 +1,168 @@
+{
+  "copyright": "anna",
+  "solution": [
+    [
+      "#",
+      "A",
+      "R",
+      "E",
+      "C",
+      "A"
+    ],
+    [
+      "A",
+      "T",
+      "E",
+      "S",
+      "O",
+      "S"
+    ],
+    [
+      "L",
+      "U",
+      "S",
+      "T",
+      "R",
+      "E"
+    ],
+    [
+      "A",
+      "R",
+      "P",
+      "A",
+      "N",
+      "T"
+    ],
+    [
+      "N",
+      "A",
+      "I",
+      "X",
+      "I",
+      "A"
+    ],
+    [
+      "A",
+      "R",
+      "R",
+      "I",
+      "A",
+      "#"
+    ]
+  ],
+  "kind": ["http://ipuz.org/crossword#1"],
+  "author": "Anna",
+  "puzzle": [
+    [
+      "#",
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    [
+      6,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      7,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      8,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      9,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      10,
+      0,
+      0,
+      0,
+      0,
+      "#"
+    ]
+  ],
+  "origin": "CrossFire encoder v1",
+  "block": "#",
+  "title": "0726",
+  "version": "http://ipuz.org/v2",
+  "empty": "0",
+  "dimensions": {
+    "width": 6,
+    "height": 6
+  },
+  "clues": {
+    "Down": [
+      [
+        1,
+        "Impedir, parar"
+      ],
+      [
+        2,
+        "Un breu temps de repòs entre la feina"
+      ],
+      [
+        3,
+        "Èxtasi per esta instal·lació esportiva descoberta"
+      ],
+      [
+        4,
+        "Lloc on apareixen catarates"
+      ],
+      [
+        5,
+        "La saeta està acollida favorablement per un recepcionista o cambrer capgirat"
+      ],
+      [
+        6,
+        "Boxeadora mexicana de cognom Flores"
+      ]
+    ],
+    "Across": [
+      [
+        1,
+        "Transforma l'acer en ferro a la inversa"
+      ],
+      [
+        6,
+        "Acollits favorablement per un recepcionista o cambrer"
+      ],
+      [
+        7,
+        "Els ultres han esperat un període de cinc anys"
+      ],
+      [
+        8,
+        "Agafant amb les arpes"
+      ],
+      [
+        9,
+        "Venia al món"
+      ],
+      [
+        10,
+        "Seguidor d'Àrrius"
+      ]
+    ]
+  }
+}

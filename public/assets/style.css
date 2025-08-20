@@ -139,3 +139,7 @@ g:hover rect.letter{
   font-style: italic;
   color: #333333;
 }
+
+#board{
+  display: none;
+}

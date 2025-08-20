@@ -1,0 +1,184 @@
+{
+  "copyright": "anna",
+  "solution": [
+    [
+      "L",
+      "O",
+      "C",
+      "#",
+      "C",
+      "A"
+    ],
+    [
+      "A",
+      "N",
+      "O",
+      "P",
+      "A",
+      "L"
+    ],
+    [
+      "V",
+      "#",
+      "S",
+      "O",
+      "S",
+      "A"
+    ],
+    [
+      "A",
+      "C",
+      "#",
+      "T",
+      "A",
+      "F"
+    ],
+    [
+      "B",
+      "U",
+      "F",
+      "A",
+      "L",
+      "I"
+    ],
+    [
+      "O",
+      "A",
+      "P",
+      "#",
+      "#",
+      "#"
+    ]
+  ],
+  "kind": ["http://ipuz.org/crossword#1"],
+  "author": "Anna",
+  "puzzle": [
+    [
+      1,
+      2,
+      3,
+      "#",
+      4,
+      5
+    ],
+    [
+      6,
+      0,
+      0,
+      7,
+      0,
+      0
+    ],
+    [
+      0,
+      "#",
+      8,
+      0,
+      0,
+      0
+    ],
+    [
+      9,
+      10,
+      "#",
+      11,
+      0,
+      0
+    ],
+    [
+      12,
+      0,
+      13,
+      0,
+      0,
+      0
+    ],
+    [
+      14,
+      0,
+      0,
+      "#",
+      "#",
+      "#"
+    ]
+  ],
+  "origin": "CrossFire encoder v1",
+  "block": "#",
+  "title": "0818",
+  "version": "http://ipuz.org/v2",
+  "empty": "0",
+  "dimensions": {
+    "width": 6,
+    "height": 6
+  },
+  "clues": {
+    "Down": [
+      [
+        1,
+        "Profe, hi puc anar?"
+      ],
+      [
+        2,
+        "Contrari d'off"
+      ],
+      [
+        3,
+        "Cap i ..."
+      ],
+      [
+        4,
+        "Cap i ..."
+      ],
+      [
+        5,
+        "Cap i ..."
+      ],
+      [
+        7,
+        "Cap i ..."
+      ],
+      [
+        10,
+        "Cap i ..."
+      ],
+      [
+        13,
+        "Alternativa a batxillerat"
+      ]
+    ],
+    "Across": [
+      [
+        1,
+        "Cap del tren"
+      ],
+      [
+        4,
+        "Calci"
+      ],
+      [
+        6,
+        "Nascuda a Lapònia (inv.)"
+      ],
+      [
+        8,
+        "Sense sabor"
+      ],
+      [
+        9,
+        "Abans de Crist"
+      ],
+      [
+        11,
+        "Gros en anglès (inv.)"
+      ],
+      [
+        12,
+        "Tira-li aire"
+      ],
+      [
+        14,
+        "Oficina d'Abonats al Paraulògic"
+      ]
+    ]
+  }
+}

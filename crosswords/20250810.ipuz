@@ -1,0 +1,184 @@
+{
+  "copyright": "anna",
+  "solution": [
+    [
+      "C",
+      "L",
+      "O",
+      "N",
+      "A",
+      "T"
+    ],
+    [
+      "A",
+      "#",
+      "R",
+      "O",
+      "R",
+      "O"
+    ],
+    [
+      "S",
+      "C",
+      "#",
+      "S",
+      "O",
+      "N"
+    ],
+    [
+      "A",
+      "L",
+      "E",
+      "#",
+      "M",
+      "I"
+    ],
+    [
+      "D",
+      "I",
+      "N",
+      "A",
+      "#",
+      "C"
+    ],
+    [
+      "A",
+      "C",
+      "A",
+      "M",
+      "P",
+      "A"
+    ]
+  ],
+  "kind": ["http://ipuz.org/crossword#1"],
+  "author": "Anna",
+  "puzzle": [
+    [
+      1,
+      0,
+      2,
+      3,
+      4,
+      5
+    ],
+    [
+      0,
+      "#",
+      6,
+      0,
+      0,
+      0
+    ],
+    [
+      7,
+      8,
+      "#",
+      9,
+      0,
+      0
+    ],
+    [
+      10,
+      0,
+      11,
+      "#",
+      12,
+      0
+    ],
+    [
+      13,
+      0,
+      0,
+      14,
+      "#",
+      0
+    ],
+    [
+      15,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  ],
+  "origin": "CrossFire encoder v1",
+  "block": "#",
+  "title": "0810",
+  "version": "http://ipuz.org/v2",
+  "empty": "0",
+  "dimensions": {
+    "width": 6,
+    "height": 6
+  },
+  "clues": {
+    "Down": [
+      [
+        1,
+        "Ja no està soltera"
+      ],
+      [
+        2,
+        "Plata i bronze"
+      ],
+      [
+        3,
+        "Cap de Nosferatu"
+      ],
+      [
+        4,
+        "L'amor per Roma mareja"
+      ],
+      [
+        5,
+        "Amb ginebra"
+      ],
+      [
+        8,
+        "Ho fa el ratolí quan l'utilitzem"
+      ],
+      [
+        11,
+        "Catorzena lletra de l'abecedari"
+      ],
+      [
+        14,
+        "Hora del matí en Estats Units"
+      ]
+    ],
+    "Across": [
+      [
+        1,
+        "Emulcat genèticament"
+      ],
+      [
+        6,
+        "Ha perdut contra Abby"
+      ],
+      [
+        7,
+        "Escandi"
+      ],
+      [
+        9,
+        "Existeixen"
+      ],
+      [
+        10,
+        "Ens ix per la boca"
+      ],
+      [
+        12,
+        "Símbol de milla"
+      ],
+      [
+        13,
+        "Menja a migdia"
+      ],
+      [
+        15,
+        "Posa la tenda per uns dies"
+      ]
+    ]
+  }
+}

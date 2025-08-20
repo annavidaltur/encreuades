@@ -1,0 +1,180 @@
+{
+  "copyright": "anna",
+  "solution": [
+    [
+      "A",
+      "P",
+      "A",
+      "R",
+      "A",
+      "T"
+    ],
+    [
+      "V",
+      "A",
+      "R",
+      "E",
+      "T",
+      "A"
+    ],
+    [
+      "A",
+      "E",
+      "#",
+      "T",
+      "E",
+      "M"
+    ],
+    [
+      "L",
+      "L",
+      "E",
+      "O",
+      "N",
+      "A"
+    ],
+    [
+      "L",
+      "L",
+      "O",
+      "R",
+      "E",
+      "R"
+    ],
+    [
+      "#",
+      "A",
+      "I",
+      "#",
+      "S",
+      "A"
+    ]
+  ],
+  "kind": ["http://ipuz.org/crossword#1"],
+  "author": "Anna",
+  "puzzle": [
+    [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    [
+      7,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      8,
+      0,
+      "#",
+      9,
+      0,
+      0
+    ],
+    [
+      10,
+      0,
+      11,
+      0,
+      0,
+      0
+    ],
+    [
+      12,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      "#",
+      13,
+      0,
+      "#",
+      14,
+      0
+    ]
+  ],
+  "origin": "CrossFire encoder v1",
+  "block": "#",
+  "title": "0731",
+  "version": "http://ipuz.org/v2",
+  "empty": "0",
+  "dimensions": {
+    "width": 6,
+    "height": 6
+  },
+  "clues": {
+    "Down": [
+      [
+        1,
+        "El cap per"
+      ],
+      [
+        2,
+        "Els valencians volen un emoji d'ella"
+      ],
+      [
+        3,
+        "Axl Rose"
+      ],
+      [
+        4,
+        "Sacerdot o capellà de la parròquia"
+      ],
+      [
+        5,
+        "Nascut a la capital de Grècia"
+      ],
+      [
+        6,
+        "De cognom Falcó"
+      ],
+      [
+        11,
+        "Escola Oficial d'Idiomes"
+      ]
+    ],
+    "Across": [
+      [
+        1,
+        "Estava engegat i ha deixat de funcionar. Sha quedat ..."
+      ],
+      [
+        7,
+        "Tots els alumnes de Hogwarts tenen una pròpia"
+      ],
+      [
+        8,
+        "Domini per als Emirats Àrabs"
+      ],
+      [
+        9,
+        "Cap de tempestes"
+      ],
+      [
+        10,
+        "Animal femella que caça mentre el mascle defèn el territori"
+      ],
+      [
+        12,
+        "Fulla que posem a les llentilles"
+      ],
+      [
+        13,
+        "Inteligència artificial"
+      ],
+      [
+        14,
+        "Està ben alimentat i no té cap enfermetart"
+      ]
+    ]
+  }
+}

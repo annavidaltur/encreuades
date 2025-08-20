@@ -98,7 +98,7 @@
 
 
 	<div id="puzzleSelect"></div>
-  	<div id="board"></div>
+  	<div id="board">holaaaa</div>
   
 	<script>
 		async function carregarPuzzles() {
@@ -146,27 +146,21 @@
 			// muntar puzDiv
 			puzDiv.appendChild(left);
 			puzDiv.appendChild(arrow);
+			puzDiv.value = puzzle.id;
+
+			// event onclick
+			puzDiv.addEventListener("click", e => clickPuzzle(e.target.value));
 
 			// afegir divPuz al divParent
 			select.appendChild(puzDiv);
 		});
 		select.addEventListener("change", e => carregarPuzzle(e.target.value));
-		carregarPuzzle(puzzles[0]); // carrega el primer
-		}
+		}		
 
-		async function carregarPuzzle(id) {
-		const res = await fetch(`/api/crossword/${id}`);
-		const puzzle = await res.json();
-		const board = document.getElementById("board");
-		board.style.gridTemplateColumns = `repeat(${puzzle.width}, 40px)`;
-		board.innerHTML = "";
-		for (let i=0; i<puzzle.width * puzzle.height; i++) {
-			const input = document.createElement("input");
-			input.className = "cell";
-			input.maxLength = 1;
-			board.appendChild(input);
-		}
-		console.log("Carregat puzzle:", puzzle.title);
+		async function clickPuzzle(id) {
+			console.log("CLIK puzzle:", id);
+			document.getElementById("puzzleSelect").style.display = "none";
+			document.getElementById("board").style.display = "block";
 		}
 
 		carregarPuzzles();
@@ -179,6 +173,9 @@
 
 <script>
 function mostrarMots(id) {
+	document.getElementById("puzzleSelect").style.display = "block"
+
+
 	document.getElementById('xicotets').style.display = 'none';
 	document.getElementById('grans').style.display = 'none';
 	document.getElementById(id).style.display = 'block';
@@ -189,6 +186,8 @@ function mostrarMots(id) {
 }
 
 function mostrarPrincial() {
+	document.getElementById("puzzleSelect").style.display = "block"
+
 	document.getElementById('xicotets').style.display = 'none';
 	document.getElementById('grans').style.display = 'none';
 	document.getElementById('btnXicotets').style.display = 'block';
