@@ -44,8 +44,15 @@ app.get("/api/crosswords", (req, res) => {
 // endpoint crossword concret
 app.get("/api/crossword/:id", (req, res) => {
   try {
-    const puzzle = fs.readFileSync(path.join(__dirname, "crosswords", `${req.params.id}.json`), "utf-8");
-    res.json(JSON.parse(puzzle));
+    const filePath = path.join(__dirname, "crosswords", `${req.params.id}.ipuz`);
+    const puzzle = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+    const response = {
+      title: puzzle.title,
+      author: puzzle.author,
+      dimensions: puzzle.dimensions,
+      puzzle: puzzle.puzzle
+    }
+    res.json(response);
   } catch (err) {
     res.status(404).json({ error: "Crossword no trobat" });
   }

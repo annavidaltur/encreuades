@@ -6,8 +6,6 @@
 	<title>Encreuada | Mots encreuats en valencià</title>
 	<link rel="icon" href="assets/icons/favicon.ico" />
 	<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" />
-    <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/android-chrome-192x192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="assets/icons/android-chrome-512x512.png">
 
 	<!-- Fonts -->
 	<link rel="preconnect" href="https://fonts.googleapis.com">
@@ -98,7 +96,7 @@
 
 
 	<div id="puzzleSelect"></div>
-  	<div id="board">holaaaa</div>
+  	<div id="board"></div>
   
 	<script>
 		async function carregarPuzzles() {
@@ -161,9 +159,62 @@
 			console.log("CLIK puzzle:", id);
 			document.getElementById("puzzleSelect").style.display = "none";
 			document.getElementById("board").style.display = "block";
+
+			const res = await fetch("/api/crossword/" + id);
+			const data = await res.json();
+			buildPuzzle(data);
 		}
 
-		carregarPuzzles();
+		// carregarPuzzles();
+		clickPuzzle("20250731")
+
+		function buildPuzzle(data){
+			const board = document.getElementById("board");
+			board.innerHTML = "";
+			
+			const width = data.dimensions.width;
+			const height = data.dimensions.height;
+			const puzzle = data.puzzle;
+
+			board.style.display = "grid";
+			board.style.gridTemplateColumns = `repeat(${width}, 40px)`;
+			board.style.gridTemplateRows = `repeat(${height}, 40px)`;
+
+			for(let i = 0; i < width; i++){
+				for(let j = 0; j < height; j++){
+					const cell = document.createElement("div");
+					const puzContent = puzzle[i][j];
+					
+					// estil
+					cell.classList.add("cell");
+					if(i == 0)
+						cell.classList.add("firstRow");
+					if(j == 0)
+						cell.classList.add("firstCol");
+					
+					// afegir número de paraula
+					if(puzContent == "#") // black square
+						cell.classList.add("cellBlack")
+					else if(puzContent > 0) // número de pista
+					{
+						const nPista = document.createElement("span");
+						nPista.classList.add("nPista");
+						nPista.innerText = puzContent;
+						cell.appendChild(nPista)
+					}	
+					// const cellLetter = document.createElement("span");
+					// cellLetter.innerText = i + "," + j;
+					// cell.appendChild(cellLetter)
+					board.appendChild(cell)
+				}
+			}
+			// for(let i = 0; i < width * height; i++){
+			// 	const cell = document.createElement("div");
+			// 	cell.classList.add("cell");
+			// 	cell.innerText = i;
+			// 	board.appendChild(cell)
+			// }
+		}
 	</script>
 
 </div>
