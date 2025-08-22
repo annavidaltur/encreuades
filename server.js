@@ -50,7 +50,8 @@ app.get("/api/crossword/:id", (req, res) => {
       title: puzzle.title,
       author: puzzle.author,
       dimensions: puzzle.dimensions,
-      puzzle: puzzle.puzzle
+      puzzle: puzzle.puzzle,
+      clues: puzzle.clues
     }
     res.json(response);
   } catch (err) {

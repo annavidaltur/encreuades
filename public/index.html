@@ -88,16 +88,46 @@
 
 	<p class="text-center">Tria el teu repte </p>
 
-	<!-- Enllaços -->
+	<!-- Botons -->
 	<div class="container-fluid d-flex justify-content-center gap-2 my-4">
 		<button id="btnXicotets" class="btn btn-crossword px-4 py-2" onclick="mostrarMots('xicotets')">Crossetes</button>
 		<button id="btnGrans" class="btn btn-crossword-outline px-4 py-2" onclick="mostrarMots('grans')">Crossots</button>
 	</div>
 
-
+	<!-- Llista creuats-->
 	<div id="puzzleSelect"></div>
-  	<div id="board"></div>
-  
+
+	<!-- Grid -->
+	<div id="board" class="container-fluid px-0 mx-0">
+	 	<nav class="navbar navbar-puzzle navbar-light bg-white border-bottom border-top">
+  			<a class="navbar-brand" href="#">Navbar</a>
+  		</nav>
+		<nav class="navbar barra-pista navbar-light border-bottom border-top">
+  			BANNER PISTA
+  		</nav>
+		
+		
+		<div class="row px-0 mx-0">
+			<div class="col-12 col-md-3 mt-2">
+				<div id="grid"></div>
+			</div>
+			<div class="col-12 col-md-3 mt-2">
+				<div><b>HORITZONTALS</b></div>
+				<hr>
+				<div class="across-clues">
+					<div class="clue-list"></div>
+				</div>
+			</div>
+			<div class="col-12 col-md-6 mt-2">
+				<div><b>VERTICALS</b></div>
+				<hr>
+				<div class="down-clues">
+					<div class="clue-list"></div>
+				</div>
+			</div>
+		</div>
+  	</div>
+
 	<script>
 		async function carregarPuzzles() {
 		const res = await fetch("/api/crosswords");
@@ -152,33 +182,37 @@
 			// afegir divPuz al divParent
 			select.appendChild(puzDiv);
 		});
-		select.addEventListener("change", e => carregarPuzzle(e.target.value));
 		}		
 
 		async function clickPuzzle(id) {
 			console.log("CLIK puzzle:", id);
+			if(id == undefined)
+				return;
 			document.getElementById("puzzleSelect").style.display = "none";
 			document.getElementById("board").style.display = "block";
 
+			console.log(id)
 			const res = await fetch("/api/crossword/" + id);
 			const data = await res.json();
 			buildPuzzle(data);
 		}
 
 		// carregarPuzzles();
-		clickPuzzle("20250731")
+		clickPuzzle("20250818")
 
 		function buildPuzzle(data){
-			const board = document.getElementById("board");
-			board.innerHTML = "";
-			
+			const grid = document.getElementById("grid");
+			grid.innerHTML = "";
 			const width = data.dimensions.width;
 			const height = data.dimensions.height;
 			const puzzle = data.puzzle;
+			const cluesDown = data.clues.Down;
+			const cluesAcross = data.clues.Across;
 
-			board.style.display = "grid";
-			board.style.gridTemplateColumns = `repeat(${width}, 40px)`;
-			board.style.gridTemplateRows = `repeat(${height}, 40px)`;
+			// grid
+			grid.style.display = "grid";
+			grid.style.gridTemplateColumns = `repeat(${width}, 1fr)`;
+			grid.style.gridTemplateRows = `repeat(${height}, 1fr)`;
 
 			for(let i = 0; i < width; i++){
 				for(let j = 0; j < height; j++){
@@ -205,15 +239,34 @@
 					// const cellLetter = document.createElement("span");
 					// cellLetter.innerText = i + "," + j;
 					// cell.appendChild(cellLetter)
-					board.appendChild(cell)
+					grid.appendChild(cell)
 				}
 			}
-			// for(let i = 0; i < width * height; i++){
-			// 	const cell = document.createElement("div");
-			// 	cell.classList.add("cell");
-			// 	cell.innerText = i;
-			// 	board.appendChild(cell)
-			// }
+			
+			// clues across
+			const listAcross = document.querySelector(".across-clues").firstElementChild;
+			const listDown = document.querySelector(".down-clues").firstElementChild;
+			for(let i=0; i < cluesAcross.length; i++)
+				addClue(listAcross, cluesAcross[i][0], cluesAcross[i][1]);
+			for(let i=0; i < cluesDown.length; i++)
+				addClue(listDown, cluesDown[i][0], cluesDown[i][1]);	
+		}
+
+		function addClue(list, n, clue){
+			const clueDiv = document.createElement("div");
+			clueDiv.classList.add("clueDiv"); 
+
+			const clueNum = document.createElement("span");
+			clueNum.classList.add("clueNum");
+			clueNum.innerText = n;
+
+			const clueText = document.createElement("span");
+			clueText.classList.add("clueText");
+			clueText.innerText = clue;
+			
+			clueDiv.appendChild(clueNum);
+			clueDiv.appendChild(clueText);
+			list.appendChild(clueDiv);
 		}
 	</script>
 
@@ -225,25 +278,12 @@
 <script>
 function mostrarMots(id) {
 	document.getElementById("puzzleSelect").style.display = "block"
-
-
-	document.getElementById('xicotets').style.display = 'none';
-	document.getElementById('grans').style.display = 'none';
-	document.getElementById(id).style.display = 'block';
-
-	//document.getElementById('btnXicotets').style.display = 'none';
-	//document.getElementById('btnGrans').style.display = 'none';
 	document.getElementById('footer').style.display = 'none';
 }
 
 function mostrarPrincial() {
 	document.getElementById("puzzleSelect").style.display = "block"
-
-	document.getElementById('xicotets').style.display = 'none';
-	document.getElementById('grans').style.display = 'none';
-	document.getElementById('btnXicotets').style.display = 'block';
-	document.getElementById('btnGrans').style.display = 'block';
-	document.getElementById('footer').style.display = 'block';
+	document.getElementById("board").style.display = "none"
 }
 </script>
 
