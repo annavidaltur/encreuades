@@ -181,7 +181,21 @@ g:hover rect.letter{
   position: absolute;
   top: 1px;
   left: 4px;
-  font-size: 0.7rem;
+  font-size: 0.6rem;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+
+.current-cell{
+  background-color: #dc8add;
+}
+
+.highlight-cell {
+  background-color: #e7e7e7;
 }
 
 /* NAVBAR PUZZLE */
