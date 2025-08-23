@@ -170,7 +170,8 @@ g:hover rect.letter{
   position: relative;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: last baseline;
+  outline: none;
 }
 
 .firstRow{ border-top: 1px solid #333333; }
@@ -179,16 +180,16 @@ g:hover rect.letter{
 
 .nPista{
   position: absolute;
-  top: 1px;
-  left: 4px;
-  font-size: 0.6rem;
+  top: -1px;
+  left: 2px;
   -moz-user-select: none;
   -khtml-user-select: none;
   -webkit-user-select: none;
   -ms-user-select: none;
   user-select: none;
 }
-
+.nPistaMini{ font-size: 0.8rem; }
+.nPistaBig { font-size: 0.4rem; }
 
 .current-cell{
   background-color: #dc8add;
@@ -196,6 +197,12 @@ g:hover rect.letter{
 
 .highlight-cell {
   background-color: #e7e7e7;
+}
+.cellLetterMini{
+  font-size: 2.6rem;
+}
+.cellLetterBig{
+  font-size: 1rem;
 }
 
 /* NAVBAR PUZZLE */

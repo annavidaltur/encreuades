@@ -97,10 +97,13 @@ function buildPuzzle(data) {
             cell.dataset.x = j;
             cell.dataset.y = i;
             cell.addEventListener("click", () => onClickCell(cell));
+            cell.tabIndex = 0; // Per a que s'active el kwydown pq un div no és focusable per defecte, i keydown sols es dispara quan l'element té el focus
+            cell.addEventListener("keydown", (e) => onKeydown(e.key, cell));
             if (i == 0)
                 cell.classList.add("firstRow");
             if (j == 0)
                 cell.classList.add("firstCol");
+            
 
             // afegir número de paraula
             if (puzContent == "#") // black square
@@ -109,12 +112,19 @@ function buildPuzzle(data) {
             {
                 const nPista = document.createElement("span");
                 nPista.classList.add("nPista");
+                if(width < 7)
+                    nPista.classList.add("nPistaMini")
+                else nPista.classList.add("nPistaBig")
                 nPista.innerText = puzContent;
                 cell.appendChild(nPista)
             }
-            // const cellLetter = document.createElement("span");
-            // cellLetter.innerText = i + "," + j;
-            // cell.appendChild(cellLetter)
+
+            // afegir span lletra
+            const cellLetter = document.createElement("span");
+            if(width < 7)
+                cellLetter.classList.add("cellLetterMini")
+            else cellLetter.classList.add("cellLetterBig");
+            cell.appendChild(cellLetter)
             grid.appendChild(cell)
         }
     }
@@ -154,6 +164,8 @@ let currentCell = null;
 let currentDir = 'across';
 
 function onClickCell(cell){
+    if(cell.classList.contains("cellBlack"))
+        return; // ignorem quadrats negres
     if(currentCell === cell){
         if(currentDir === 'across')
             currentDir = 'down';
@@ -229,5 +241,34 @@ function updateSelection(){
             if(cell !== currentCell)
                 cell.classList.add('highlight-cell');
         }
+    }
+}
+
+function onKeydown(key, cell){
+    if (!/^[a-zA-Z]$/.test(key)) return;
+    
+    const cellText = cell.children[1] ?? cell.children[0];
+    cellText.innerText = key.toUpperCase(); // mostrem la lletra a la cell actual
+    cell.classList.remove('current-cell');
+    cell.classList.add('highlight-cell');
+
+    let nextCell;
+    if(currentDir === "across")
+    {
+        const nextX = Number(cell.dataset.x) + 1;
+        nextCell = document.querySelector(`.cell[data-x="${nextX}"][data-y="${cell.dataset.y}"]:not(.cellBlack)`)
+        
+    } else { // down
+        const nextY = Number(cell.dataset.y) + 1;
+        nextCell = document.querySelector(`.cell[data-x="${cell.dataset.x}"][data-y="${nextY}"]:not(.cellBlack)`)
+    }
+
+    if(nextCell){
+        nextCell.classList.remove("highlight-cell")
+        nextCell.classList.add('current-cell');
+        nextCell.focus();
+    } else { // final de paraula
+        cell.classList.add('current-cell');
+        cell.classList.remove("highlight-cell")
     }
 }
