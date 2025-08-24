@@ -60,13 +60,11 @@ async function carregarPuzzles() {
 
 // Event onClick element llista puzzle
 async function clickPuzzle(id) {
-    console.log("CLIK puzzle:", id);
     if (id == undefined)
         return;
     document.getElementById("puzzleSelect").style.display = "none";
     document.getElementById("board").style.display = "block";
 
-    console.log(id)
     const res = await fetch("/api/crossword/" + id);
     const data = await res.json();
     buildPuzzle(data);
@@ -191,8 +189,6 @@ function updateSelection(){
     const x = parseInt(currentCell.dataset.x);
     const y = parseInt(currentCell.dataset.y);
     
-    console.log('xy', x,y)
-
     if(currentDir === 'across'){
         let startX = x;
         for(let next = x;;next--){
@@ -226,7 +222,6 @@ function updateSelection(){
             }
             startY = next;
         }
-        console.log('startY', startY);
 
         let endY = y;
         for(let next = y+1;;next++){
@@ -236,7 +231,6 @@ function updateSelection(){
             }
             endY = next;
         }
-        console.log('endY', endY);
 
         for(let i=startY; i <= endY; i++){
             const cell = document.querySelector(`.cell[data-x="${x}"][data-y="${i}"]`)
@@ -247,8 +241,13 @@ function updateSelection(){
 }
 
 function onKeydown(key, cell){
+    console.log(key)
     if(key === "Enter"){
         onEnterKey(cell);
+        return;
+    }
+    else if(key === "Backspace"){
+        onBackKey(cell);
         return;
     }
         
@@ -297,11 +296,9 @@ function onEnterKey(cell) {
             if (!candidate || candidate.classList.contains("cellBlack")) break;
             nextX++;
         }
-        console.log('nextX', nextX)
         // ara buscar el primer caràcter lliure de la següent paraula
         while (true) {
             const candidate = document.querySelector(`.cell[data-x="${nextX}"][data-y="${y}"]`);
-            console.log('candidate', candidate)
             if (!candidate){
                 break; // no hi ha més files
             }
@@ -374,3 +371,29 @@ function onEnterKey(cell) {
     }
 }
 
+function onBackKey(cell){
+    if (!cell) return;
+
+    const x = Number(cell.dataset.x);
+    const y = Number(cell.dataset.y);
+
+    let backCell;
+    if (currentDir === 'across') {
+        let backX = x-1;
+        if(x == 0) backX = 0;
+        backCell = document.querySelector(`.cell[data-x="${backX}"][data-y="${y}"]`);
+    } else { // down
+        let backY = y-1;
+        if(y == 0) backY = 0;
+        backCell = document.querySelector(`.cell[data-x="${x}"][data-y="${backY}"]`);
+    }
+
+    cell.lastElementChild.innerText = "";
+
+
+    if (backCell && !backCell.classList.contains("cellBlack")) {
+        currentCell = backCell;
+        updateSelection();
+        currentCell.focus();
+    }
+}
