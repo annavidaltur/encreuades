@@ -76,8 +76,8 @@ async function clickPuzzle(id) {
 function buildPuzzle(data) {
     const grid = document.getElementById("grid");
     grid.innerHTML = "";
-    const width = data.dimensions.width;
-    const height = data.dimensions.height;
+    width = data.dimensions.width;
+    height = data.dimensions.height;
     const puzzle = data.puzzle;
     const cluesDown = data.clues.Down;
     const cluesAcross = data.clues.Across;
@@ -162,6 +162,8 @@ function addClue(list, n, clue) {
 //
 let currentCell = null;
 let currentDir = 'across';
+let width = 0;
+let height = 0;
 
 function onClickCell(cell){
     if(cell.classList.contains("cellBlack"))
@@ -245,13 +247,18 @@ function updateSelection(){
 }
 
 function onKeydown(key, cell){
+    if(key === "Enter"){
+        onEnterKey(cell);
+        return;
+    }
+        
+
     if (!/^[a-zA-Z]$/.test(key)) return;
     
-    const cellText = cell.children[1] ?? cell.children[0];
+    const cellText = cell.lastElementChild; // últim element perque si té nPista és l'1, i si no el 0
     cellText.innerText = key.toUpperCase(); // mostrem la lletra a la cell actual
-    cell.classList.remove('current-cell');
-    cell.classList.add('highlight-cell');
 
+    // mou la selecció a la següent cell
     let nextCell;
     if(currentDir === "across")
     {
@@ -263,12 +270,107 @@ function onKeydown(key, cell){
         nextCell = document.querySelector(`.cell[data-x="${cell.dataset.x}"][data-y="${nextY}"]:not(.cellBlack)`)
     }
 
+
     if(nextCell){
-        nextCell.classList.remove("highlight-cell")
-        nextCell.classList.add('current-cell');
+        currentCell = nextCell;
         nextCell.focus();
     } else { // final de paraula
-        cell.classList.add('current-cell');
-        cell.classList.remove("highlight-cell")
+        currentCell = cell;
+    }
+
+    updateSelection();
+}
+
+function onEnterKey(cell) {
+    if (!currentCell) return;
+
+    const x = Number(cell.dataset.x);
+    const y = Number(cell.dataset.y);
+
+    let nextCell;
+
+    if (currentDir === 'across') {
+        // obtenim el x de la pròxima paraula
+        let nextX = x + 1;
+        while (true) {
+            const candidate = document.querySelector(`.cell[data-x="${nextX}"][data-y="${y}"]`);
+            if (!candidate || candidate.classList.contains("cellBlack")) break;
+            nextX++;
+        }
+        console.log('nextX', nextX)
+        // ara buscar el primer caràcter lliure de la següent paraula
+        while (true) {
+            const candidate = document.querySelector(`.cell[data-x="${nextX}"][data-y="${y}"]`);
+            console.log('candidate', candidate)
+            if (!candidate){
+                break; // no hi ha més files
+            }
+            if (!candidate.classList.contains("cellBlack") && !candidate.lastElementChild.innerText != "") {
+                nextCell = candidate;
+                break;
+            }
+            nextX++;
+        }
+        if(!nextCell)
+        {
+            // buquem en la fila següent
+            for (let j = y + 1; j < height; j++) {
+                for (let i = 0; i < width; i++) {
+                    const candidate = document.querySelector(`.cell[data-x="${i}"][data-y="${j}"]`);
+                    if (!candidate) continue;
+                    if (!candidate.classList.contains("cellBlack") &&
+                        candidate.lastElementChild.innerText === "") {
+                        nextCell = candidate;
+                        break;
+                    }
+                }
+                if (nextCell) break;
+            }
+        }
+    }
+    else { // down
+        // obtenim el x de la pròxima paraula
+        let nextY = y + 1;
+        while (true) {
+            const candidate = document.querySelector(`.cell[data-x="${x}"][data-y="${nextY}"]`);
+            if (!candidate || candidate.classList.contains("cellBlack")) break;
+            nextY++;
+        }
+
+        // ara buscar el primer caràcter lliure de la següent paraula
+        while (true) {
+            const candidate = document.querySelector(`.cell[data-x="${x}"][data-y="${nextY}"]`);
+            if (!candidate){
+                break; // no hi ha més files
+            }
+            if (!candidate.classList.contains("cellBlack") && !candidate.lastElementChild.innerText != "") {
+                nextCell = candidate;
+                break;
+            }
+            nextY++;
+        }
+        if(!nextCell)
+        {
+            // buquem en la COL següent
+            for (let i = x + 1; i < width; i++) {
+                for (let j = 0; j < height; j++) {
+                    const candidate = document.querySelector(`.cell[data-x="${i}"][data-y="${j}"]`);
+                    if (!candidate) continue;
+                    if (!candidate.classList.contains("cellBlack") &&
+                        candidate.lastElementChild.innerText === "") {
+                        nextCell = candidate;
+                        break;
+                    }
+                }
+                if (nextCell) break;
+            }
+        }
+    }
+
+    if (nextCell) {
+        currentCell = nextCell;
+        updateSelection();
+        currentCell.focus();
     }
 }
+

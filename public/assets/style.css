@@ -162,8 +162,8 @@ g:hover rect.letter{
 }
 
 .cell{
-  border-bottom: 1px solid #333333;
-  border-right: 1px solid #333333;
+  border-bottom: 1px solid #5b5b5b;
+  border-right: 1px solid #5b5b5b;
   width: 100%;
   aspect-ratio: 1/1;
   box-sizing: border-box;
@@ -174,8 +174,8 @@ g:hover rect.letter{
   outline: none;
 }
 
-.firstRow{ border-top: 1px solid #333333; }
-.firstCol{ border-left: 1px solid #333333; }
+.firstRow{ border-top: 1px solid #5b5b5b; }
+.firstCol{ border-left: 1px solid #5b5b5b; }
 .cellBlack{ background-color: #333; }
 
 .nPista{
@@ -188,7 +188,7 @@ g:hover rect.letter{
   -ms-user-select: none;
   user-select: none;
 }
-.nPistaMini{ font-size: 0.8rem; }
+/* .nPistaMini{ font-size: 0.8em; } */
 .nPistaBig { font-size: 0.4rem; }
 
 .current-cell{
@@ -199,7 +199,7 @@ g:hover rect.letter{
   background-color: #e7e7e7;
 }
 .cellLetterMini{
-  font-size: 2.6rem;
+  font-size: 2rem;
 }
 .cellLetterBig{
   font-size: 1rem;
