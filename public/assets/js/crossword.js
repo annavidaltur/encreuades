@@ -96,7 +96,7 @@ function buildPuzzle(data) {
             cell.dataset.y = i;
             cell.addEventListener("click", () => onClickCell(cell));
             cell.tabIndex = 0; // Per a que s'active el kwydown pq un div no és focusable per defecte, i keydown sols es dispara quan l'element té el focus
-            cell.addEventListener("keydown", (e) => onKeydown(e.key, cell));
+            cell.addEventListener("keydown", (e) => onKeydown(e, cell));
             if (i == 0)
                 cell.classList.add("firstRow");
             if (j == 0)
@@ -240,16 +240,39 @@ function updateSelection(){
     }
 }
 
-function onKeydown(key, cell){
-    console.log(key)
+function onKeydown(event, cell){
+    const key = event.key;
     if(key === "Enter"){
+        event.preventDefault();
         onEnterKey(cell);
         return;
     }
     else if(key === "Backspace"){
+        event.preventDefault();
         onBackKey(cell);
         return;
     }
+    else if(key === "ArrowDown"){
+        event.preventDefault();
+        onArrowDownKey();
+        return;
+    }
+    else if(key === "ArrowRight"){
+        event.preventDefault();
+        onArrowRightKey();
+        return;
+    }
+    else if(key === "ArrowUp"){
+        event.preventDefault();
+        onArrowUpKey();
+        return;
+    }
+    else if(key === "ArrowLeft"){
+        event.preventDefault();
+        onArrowLeftKey();
+        return;
+    }
+        
         
 
     if (!/^[a-zA-Z]$/.test(key)) return;
@@ -281,6 +304,7 @@ function onKeydown(key, cell){
 }
 
 function onEnterKey(cell) {
+    // TODO: Tornar al principi si hem arribat al final de la graella
     if (!currentCell) return;
 
     const x = Number(cell.dataset.x);
@@ -395,5 +419,77 @@ function onBackKey(cell){
         currentCell = backCell;
         updateSelection();
         currentCell.focus();
+    }
+}
+
+function onArrowDownKey(){
+    // canviar de direcció
+    if(currentDir === 'across'){
+        currentDir = 'down';
+        updateSelection();
+    } else { // ja estem en down, mou cap avall
+        const x = Number(currentCell.dataset.x);
+        const y = Number(currentCell.dataset.y);
+
+        const nextCell = document.querySelector(`.cell[data-x="${x}"][data-y="${y+1}"]`)
+        if(nextCell && !nextCell.classList.contains("cellBlack")){
+            currentCell = nextCell;
+            updateSelection();
+            currentCell.focus();
+        }
+    }
+}
+
+function onArrowUpKey(){
+    // canviar de direcció
+    if(currentDir === 'across'){
+        currentDir = 'down';
+        updateSelection();
+    } else { // ja estem en down, mou cap amunt
+        const x = Number(currentCell.dataset.x);
+        const y = Number(currentCell.dataset.y);
+
+        const nextCell = document.querySelector(`.cell[data-x="${x}"][data-y="${y-1}"]`)
+        if(nextCell && !nextCell.classList.contains("cellBlack")){
+            currentCell = nextCell;
+            updateSelection();
+            currentCell.focus();
+        }
+    }
+}
+
+function onArrowRightKey(){
+    // canviar de direcció
+    if(currentDir === 'down'){
+        currentDir = 'across';
+        updateSelection();
+    } else { // ja estem en across, mou cap a la dreta
+        const x = Number(currentCell.dataset.x);
+        const y = Number(currentCell.dataset.y);
+
+        const nextCell = document.querySelector(`.cell[data-x="${x+1}"][data-y="${y}"]`)
+        if(nextCell && !nextCell.classList.contains("cellBlack")){
+            currentCell = nextCell;
+            updateSelection();
+            currentCell.focus();
+        }
+    }
+}
+
+function onArrowLeftKey(){
+    // canviar de direcció
+    if(currentDir === 'down'){
+        currentDir = 'across';
+        updateSelection();
+    } else { // ja estem en across, mou cap a l'esq
+        const x = Number(currentCell.dataset.x);
+        const y = Number(currentCell.dataset.y);
+
+        const nextCell = document.querySelector(`.cell[data-x="${x-1}"][data-y="${y}"]`)
+        if(nextCell && !nextCell.classList.contains("cellBlack")){
+            currentCell = nextCell;
+            updateSelection();
+            currentCell.focus();
+        }
     }
 }
