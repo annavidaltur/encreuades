@@ -1,12 +1,17 @@
-carregarPuzzles();
+// carregarPuzzles();
 // clickPuzzle("20250818")
 // clickPuzzle("20250829") // 15x15
 
 // Crea la llista de puzzles
-async function carregarPuzzles() {
-    const res = await fetch("/api/crosswords");
+let tipus = "";
+async function carregarPuzzles(tipus) {
+    document.getElementById("puzzleSelect").style.display = "block"
+	document.getElementById("board").style.display = "none"
+    tipus = tipus;
+    const res = await fetch(`/api/crosswords?` + new URLSearchParams({ type: tipus}));
     const puzzles = await res.json();
     const select = document.getElementById("puzzleSelect");
+    select.innerHTML = "";
     puzzles.forEach(puzzle => {
         const puzDiv = document.createElement("div");
         puzDiv.classList.add("puzDiv");
@@ -51,7 +56,7 @@ async function carregarPuzzles() {
         puzDiv.value = puzzle.id;
 
         // event onclick
-        puzDiv.addEventListener("click", e => clickPuzzle(puzzle.id));
+        puzDiv.addEventListener("click", e => clickPuzzle(tipus, puzzle.id));
 
         // afegir divPuz al divParent
         select.appendChild(puzDiv);
@@ -59,19 +64,19 @@ async function carregarPuzzles() {
 }
 
 // Event onClick element llista puzzle
-async function clickPuzzle(id) {
+async function clickPuzzle(tipus, id) {
     if (id == undefined)
         return;
     document.getElementById("puzzleSelect").style.display = "none";
     document.getElementById("board").style.display = "block";
 
-    const res = await fetch("/api/crossword/" + id);
+    const res = await fetch(`/api/crossword/${id}?` + new URLSearchParams({ type: tipus }));
     const data = await res.json();
-    buildPuzzle(data, id);
+    buildPuzzle(data, id, tipus);
 }
 
 // Crea grid i pistes del puzzle
-function buildPuzzle(data, id) {
+function buildPuzzle(data, id, tipus) {
     const grid = document.getElementById("grid");
     grid.innerHTML = "";
     width = data.dimensions.width;
@@ -89,13 +94,13 @@ function buildPuzzle(data, id) {
     var checkBtn = document.getElementById("btnComprovar");
     var newCheckBtn = checkBtn.cloneNode(true);
     checkBtn.parentNode.replaceChild(newCheckBtn, checkBtn);
-    newCheckBtn.addEventListener("click", () => checkPuzzle(id));
+    newCheckBtn.addEventListener("click", () => checkPuzzle(tipus, id));
 
     // Afegir id a botó resoldre
     var solveBtn = document.getElementById("btnResoldre");
     var newSolveBtn = solveBtn.cloneNode(true);
     solveBtn.parentNode.replaceChild(newSolveBtn, solveBtn);
-    newSolveBtn.addEventListener("click", () => solvePuzzle(id));
+    newSolveBtn.addEventListener("click", () => solvePuzzle(tipus, id));
 
     // Netejar previ
     document.querySelectorAll('.cell').forEach(c => {
@@ -115,7 +120,7 @@ function buildPuzzle(data, id) {
             cell.dataset.y = i;
             cell.addEventListener("click", () => onClickCell(cell));
             cell.tabIndex = 0; // Per a que s'active el kwydown pq un div no és focusable per defecte, i keydown sols es dispara quan l'element té el focus
-            cell.addEventListener("keydown", (e) => onKeydown(e, cell, id));
+            cell.addEventListener("keydown", (e) => onKeydown(e, cell, tipus, id));
             if (i == 0)
                 cell.classList.add("firstRow");
             if (j == 0)
@@ -259,7 +264,7 @@ function updateSelection(){
     }
 }
 
-function onKeydown(event, cell, id){
+function onKeydown(event, cell, tipus, id){
     const key = event.key;
     if(key === "Enter"){
         event.preventDefault();
@@ -327,7 +332,7 @@ function onKeydown(event, cell, id){
     
     const isFinished = cellsJugables.every(c => c.lastElementChild?.innerText.trim() !== "");
     if(!isFinished) return; // alguna cell està empty      
-    checkPuzzle(id);
+    checkPuzzle(tipus, id);
 }
 
 function onEnterKey(cell) {
@@ -522,7 +527,7 @@ function onArrowLeftKey(){
 }
 
 // comprova tota la graella
-function checkPuzzle(id){
+function checkPuzzle(tipus, id){
     if(id == undefined)
         return;
 
@@ -538,7 +543,7 @@ function checkPuzzle(id){
         mapped.push(row)
     }
 
-    fetch("/api/crossword/" + id, {
+    fetch(`/api/crossword/${id}?type=${tipus}`, {
         method: "POST",
         headers: {'Content-Type': 'application/json'}, 
         body: JSON.stringify(mapped)
@@ -555,7 +560,6 @@ function checkPuzzle(id){
                     const res = result[j][i];
                     if(res !== "" && res !== undefined){
                         cell.lastElementChild.classList.add(res)
-
                         setTimeout(() => {
                             cell.lastElementChild.classList.remove(res);
                         }, 5000) // borra la class correct/incorrect als 5s
@@ -567,11 +571,11 @@ function checkPuzzle(id){
 }
 
 // mostra la solució
-async function solvePuzzle(id){
+async function solvePuzzle(tipus, id){
     if(id == undefined)
         return;
 
-    const res = await fetch(`/api/crossword/${id}/solve`);
+    const res = await fetch(`/api/crossword/${id}/solve?` + new URLSearchParams({ type: tipus}));
     const solution = await res.json();
     console.log('solution', solution)
     for (let j = 0; j < height; j++) {

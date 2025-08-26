@@ -205,8 +205,8 @@ g:hover rect.letter{
   font-size: 1rem;
 }
 
-.correct{ color:darkgreen;}
-.incorrect{color:darkred}
+.correct{ color:green;}
+.incorrect{color:red;}
 
 /* NAVBAR PUZZLE */
 .navbar-puzzle{

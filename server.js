@@ -15,7 +15,8 @@ app.use(express.json());
 
 // endpoint que torna la llista de crosswords
 app.get("/api/crosswords", (req, res) => {
-    const dir = path.join(__dirname, "crosswords");
+    const type = req.query.type;
+    const dir = path.join(__dirname, type);
     try{
         const dToday = new Date()
         const strToday = dToday.toISOString().slice(0,10).replace(/-/g, "")
@@ -47,7 +48,7 @@ app.get("/api/crosswords", (req, res) => {
 // endpoint crossword concret
 app.get("/api/crossword/:id", (req, res) => {
   try {
-    const filePath = path.join(__dirname, "crosswords", `${req.params.id}.ipuz`);
+    const filePath = path.join(__dirname, req.query.type, `${req.params.id}.ipuz`);
     const puzzle = JSON.parse(fs.readFileSync(filePath, "utf-8"));
     const response = {
       title: puzzle.title,
@@ -65,10 +66,8 @@ app.get("/api/crossword/:id", (req, res) => {
 // mostrar solució
 app.get("/api/crossword/:id/solve", (req, res) => {
   try {
-    const filePath = path.join(__dirname, "crosswords", `${req.params.id}.ipuz`);
+    const filePath = path.join(__dirname, req.query.type, `${req.params.id}.ipuz`);
     const puzzle = JSON.parse(fs.readFileSync(filePath, "utf-8"));
-
-    console.log(puzzle.solution)
     res.json(puzzle.solution);
   } catch (err) {
     res.status(404).json({ error: "Crossword no trobat" });
@@ -78,7 +77,7 @@ app.get("/api/crossword/:id/solve", (req, res) => {
 // check resultat
 app.post("/api/crossword/:id", (req, res) => {
   try {
-    const filePath = path.join(__dirname, "crosswords", `${req.params.id}.ipuz`);
+    const filePath = path.join(__dirname, req.query.type, `${req.params.id}.ipuz`);
     const puzzle = JSON.parse(fs.readFileSync(filePath, "utf-8"));
     const solution = puzzle.solution;
     const width = puzzle.dimensions.width;
@@ -91,7 +90,6 @@ app.post("/api/crossword/:id", (req, res) => {
       for(let i=0; i < width; i++){
         const sol = solution[j][i];
         const input = userInput[j][i];
-        console.log('input', input)
 
         if(sol == "#" || input == undefined || input == "")
           row.push("") // blackSquare o cell buida
