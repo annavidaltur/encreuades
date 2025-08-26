@@ -51,10 +51,10 @@ html, body {
 
 .btn-crossword-outline{
   background-color: transparent;
-  border: 2px solid #450359;
+  border: 1px solid #450359;
   color: #450359;
   border-radius: 0;
-  font-size: 1.1rem;
+  font-size: 1rem;
   transition: all 0.2 ease-in-out;
 }
 
@@ -172,6 +172,11 @@ g:hover rect.letter{
   justify-content: center;
   align-items: last baseline;
   outline: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .firstRow{ border-top: 1px solid #5b5b5b; }
@@ -181,12 +186,7 @@ g:hover rect.letter{
 .nPista{
   position: absolute;
   top: -1px;
-  left: 2px;
-  -moz-user-select: none;
-  -khtml-user-select: none;
-  -webkit-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+  left: 2px;  
 }
 /* .nPistaMini{ font-size: 0.8em; } */
 .nPistaBig { font-size: 0.4rem; }
@@ -204,6 +204,9 @@ g:hover rect.letter{
 .cellLetterBig{
   font-size: 1rem;
 }
+
+.correct{ color:darkgreen;}
+.incorrect{color:darkred}
 
 /* NAVBAR PUZZLE */
 .navbar-puzzle{

@@ -1,5 +1,5 @@
-// carregarPuzzles();
-clickPuzzle("20250818")
+carregarPuzzles();
+// clickPuzzle("20250818")
 // clickPuzzle("20250829") // 15x15
 
 // Crea la llista de puzzles
@@ -51,7 +51,7 @@ async function carregarPuzzles() {
         puzDiv.value = puzzle.id;
 
         // event onclick
-        puzDiv.addEventListener("click", e => clickPuzzle(e.target.value));
+        puzDiv.addEventListener("click", e => clickPuzzle(puzzle.id));
 
         // afegir divPuz al divParent
         select.appendChild(puzDiv);
@@ -67,11 +67,11 @@ async function clickPuzzle(id) {
 
     const res = await fetch("/api/crossword/" + id);
     const data = await res.json();
-    buildPuzzle(data);
+    buildPuzzle(data, id);
 }
 
 // Crea grid i pistes del puzzle
-function buildPuzzle(data) {
+function buildPuzzle(data, id) {
     const grid = document.getElementById("grid");
     grid.innerHTML = "";
     width = data.dimensions.width;
@@ -85,6 +85,25 @@ function buildPuzzle(data) {
     grid.style.gridTemplateColumns = `repeat(${width}, 1fr)`;
     grid.style.gridTemplateRows = `repeat(${height}, 1fr)`;
 
+    // Afegir id a botó comprovar
+    var checkBtn = document.getElementById("btnComprovar");
+    var newCheckBtn = checkBtn.cloneNode(true);
+    checkBtn.parentNode.replaceChild(newCheckBtn, checkBtn);
+    newCheckBtn.addEventListener("click", () => checkPuzzle(id));
+
+    // Afegir id a botó resoldre
+    var solveBtn = document.getElementById("btnResoldre");
+    var newSolveBtn = solveBtn.cloneNode(true);
+    solveBtn.parentNode.replaceChild(newSolveBtn, solveBtn);
+    newSolveBtn.addEventListener("click", () => solvePuzzle(id));
+
+    // Netejar previ
+    document.querySelectorAll('.cell').forEach(c => {
+        c.classList.remove('current-cell', 'highlight-cell', 'cellBlack')
+        c.lastElementChild.innerText = "";
+    })
+
+    // Graella
     for (let i = 0; i < width; i++) {
         for (let j = 0; j < height; j++) {
             const cell = document.createElement("div");
@@ -96,7 +115,7 @@ function buildPuzzle(data) {
             cell.dataset.y = i;
             cell.addEventListener("click", () => onClickCell(cell));
             cell.tabIndex = 0; // Per a que s'active el kwydown pq un div no és focusable per defecte, i keydown sols es dispara quan l'element té el focus
-            cell.addEventListener("keydown", (e) => onKeydown(e, cell));
+            cell.addEventListener("keydown", (e) => onKeydown(e, cell, id));
             if (i == 0)
                 cell.classList.add("firstRow");
             if (j == 0)
@@ -240,7 +259,7 @@ function updateSelection(){
     }
 }
 
-function onKeydown(event, cell){
+function onKeydown(event, cell, id){
     const key = event.key;
     if(key === "Enter"){
         event.preventDefault();
@@ -301,6 +320,14 @@ function onKeydown(event, cell){
     }
 
     updateSelection();
+
+    // comprovar si ha escrit totes les lletres
+    const allCells = Array.from(document.querySelectorAll(`.cell`));
+    const cellsJugables = allCells.filter((c) => !c.classList.contains("cellBlack"));
+    
+    const isFinished = cellsJugables.every(c => c.lastElementChild?.innerText.trim() !== "");
+    if(!isFinished) return; // alguna cell està empty      
+    checkPuzzle(id);
 }
 
 function onEnterKey(cell) {
@@ -490,6 +517,73 @@ function onArrowLeftKey(){
             currentCell = nextCell;
             updateSelection();
             currentCell.focus();
+        }
+    }
+}
+
+// comprova tota la graella
+function checkPuzzle(id){
+    if(id == undefined)
+        return;
+
+    let mapped = [];
+    for (let j = 0; j < height; j++) {
+        let row = [];
+        for(let i=0; i<width; i++){
+            const cell = document.querySelector(`.cell[data-x="${i}"][data-y="${j}"]`);
+            if (cell.classList.contains("cellBlack"))
+                row.push("#");
+            else row.push(cell.lastElementChild.innerText);
+        }
+        mapped.push(row)
+    }
+
+    fetch("/api/crossword/" + id, {
+        method: "POST",
+        headers: {'Content-Type': 'application/json'}, 
+        body: JSON.stringify(mapped)
+    }).then(function (a) {
+        return a.json();
+    })
+    .then(function (result) {
+        for (let j = 0; j < height; j++) {
+            for(let i=0; i<width; i++){
+                const cell = document.querySelector(`.cell[data-x="${i}"][data-y="${j}"]`);
+                if (cell.classList.contains("cellBlack"))
+                    continue;
+                else {
+                    const res = result[j][i];
+                    if(res !== "" && res !== undefined){
+                        cell.lastElementChild.classList.add(res)
+
+                        setTimeout(() => {
+                            cell.lastElementChild.classList.remove(res);
+                        }, 5000) // borra la class correct/incorrect als 5s
+                    }
+                }
+            }
+        }
+    })
+}
+
+// mostra la solució
+async function solvePuzzle(id){
+    if(id == undefined)
+        return;
+
+    const res = await fetch(`/api/crossword/${id}/solve`);
+    const solution = await res.json();
+    console.log('solution', solution)
+    for (let j = 0; j < height; j++) {
+        for(let i=0; i<width; i++){
+            const cell = document.querySelector(`.cell[data-x="${i}"][data-y="${j}"]`);
+            const sol = solution[j][i];
+            if(j == 2 && i == 2){
+                console.log('cell', cell)
+                console.log('sol', sol)
+            }
+            if(sol !== "#")
+                cell.lastElementChild.innerText = sol;
         }
     }
 }

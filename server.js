@@ -10,6 +10,9 @@ const PORT = 3000;
 // web
 app.use(express.static(path.join(__dirname, "public")));
 
+//middleware per parsejar json
+app.use(express.json());
+
 // endpoint que torna la llista de crosswords
 app.get("/api/crosswords", (req, res) => {
     const dir = path.join(__dirname, "crosswords");
@@ -54,6 +57,51 @@ app.get("/api/crossword/:id", (req, res) => {
       clues: puzzle.clues
     }
     res.json(response);
+  } catch (err) {
+    res.status(404).json({ error: "Crossword no trobat" });
+  }
+});
+
+// mostrar solució
+app.get("/api/crossword/:id/solve", (req, res) => {
+  try {
+    const filePath = path.join(__dirname, "crosswords", `${req.params.id}.ipuz`);
+    const puzzle = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+
+    console.log(puzzle.solution)
+    res.json(puzzle.solution);
+  } catch (err) {
+    res.status(404).json({ error: "Crossword no trobat" });
+  }
+});
+
+// check resultat
+app.post("/api/crossword/:id", (req, res) => {
+  try {
+    const filePath = path.join(__dirname, "crosswords", `${req.params.id}.ipuz`);
+    const puzzle = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+    const solution = puzzle.solution;
+    const width = puzzle.dimensions.width;
+    const height = puzzle.dimensions.height;
+    const userInput = req.body;
+
+    let checked = [];
+    for(let j=0; j < height; j++){
+      let row = [];
+      for(let i=0; i < width; i++){
+        const sol = solution[j][i];
+        const input = userInput[j][i];
+        console.log('input', input)
+
+        if(sol == "#" || input == undefined || input == "")
+          row.push("") // blackSquare o cell buida
+        else if(sol == input)
+          row.push("correct")
+        else row.push("incorrect");
+      }
+      checked.push(row)
+    }
+    res.json(checked);
   } catch (err) {
     res.status(404).json({ error: "Crossword no trobat" });
   }
