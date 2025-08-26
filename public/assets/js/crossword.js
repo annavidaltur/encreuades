@@ -1,6 +1,6 @@
-// carregarPuzzles();
-// clickPuzzle("20250818")
-// clickPuzzle("20250829") // 15x15
+// carregarPuzzles('minis');
+clickPuzzle("minis", "20250818")
+// clickPuzzle("maxis", "20250829") // 15x15
 
 // Crea la llista de puzzles
 let tipus = "";
@@ -151,22 +151,24 @@ function buildPuzzle(data, id, tipus) {
         }
     }
 
-    // clues across
+    // clues
     const listAcross = document.querySelector(".across-clues").firstElementChild;
     listAcross.innerHTML = "";
     const listDown = document.querySelector(".down-clues").firstElementChild;
     listDown.innerHTML = "";
 
     for (let i = 0; i < cluesAcross.length; i++)
-        addClue(listAcross, cluesAcross[i][0], cluesAcross[i][1]);
+        addClue(listAcross, cluesAcross[i][0], cluesAcross[i][1], "across");
     for (let i = 0; i < cluesDown.length; i++)
-        addClue(listDown, cluesDown[i][0], cluesDown[i][1]);
+        addClue(listDown, cluesDown[i][0], cluesDown[i][1], "down");
 }
 
 // Afegeix una pista a la llista indicada
-function addClue(list, n, clue) {
+function addClue(list, n, clue, dir) {
     const clueDiv = document.createElement("div");
     clueDiv.classList.add("clueDiv");
+    clueDiv.dataset.num = n;
+    clueDiv.dataset.dir = dir;
 
     const clueNum = document.createElement("span");
     clueNum.classList.add("clueNum");
@@ -212,7 +214,8 @@ function updateSelection(){
     
     const x = parseInt(currentCell.dataset.x);
     const y = parseInt(currentCell.dataset.y);
-    
+    highlightClue();
+
     if(currentDir === 'across'){
         let startX = x;
         for(let next = x;;next--){
@@ -262,6 +265,7 @@ function updateSelection(){
                 cell.classList.add('highlight-cell');
         }
     }
+
 }
 
 function onKeydown(event, cell, tipus, id){
@@ -590,4 +594,63 @@ async function solvePuzzle(tipus, id){
                 cell.lastElementChild.innerText = sol;
         }
     }
+}
+
+// mostra la pista activa
+function highlightClue(){
+    // netegem estat anterior
+    document.querySelectorAll('.clueDiv.active').forEach(e => e.classList.remove('active'));
+
+    const clueNum = getClueNum();
+    if(!clueNum) return; 
+
+    const clue = document.querySelector(`.clueDiv[data-dir="${currentDir}"][data-num="${clueNum}"]`);
+    if(clue){
+        clue.classList.add('active');
+        clue.scrollIntoView({behavior: 'smooth', block: 'center'})
+    }
+}
+
+function getClueNum(){
+    const pistaSpan = currentCell.querySelector('.nPista');
+    if(pistaSpan) 
+    {
+        const candidateClue = document.querySelector(`.clueDiv[data-dir="${currentDir}"][data-num="${pistaSpan.innerText}"]`);
+        if(candidateClue)
+            return pistaSpan.innerText;
+    }
+
+    const x = Number(currentCell.dataset.x);
+    const y = Number(currentCell.dataset.y);
+
+    if(currentDir === "across"){
+        for(let i=x-1;;i--){
+            const prevCell = document.querySelector(`.cell[data-x="${i}"][data-y="${y}"]`)
+            if(!prevCell || prevCell.classList.contains("cellBlack")){
+                break;
+            }
+            const span = prevCell.querySelector('.nPista');            
+            if(span){
+                const candidateClue = document.querySelector(`.clueDiv[data-dir="across"][data-num="${span.innerText}"]`);
+                if(candidateClue){
+                    return span.innerText;
+                }
+            }
+        }
+    } else { // down
+        for(let j=y-1;;j--){
+            const prevCell = document.querySelector(`.cell[data-x="${x}"][data-y="${j}"]`)
+            if(!prevCell || prevCell.classList.contains("cellBlack")){
+                break;
+            }
+            const span = prevCell.querySelector('.nPista');            
+            if(span){
+                const candidateClue = document.querySelector(`.clueDiv[data-dir="down"][data-num="${span.innerText}"]`);
+                if(candidateClue){
+                    return span.innerText;
+                }
+            }
+        }
+    }
+    return null;
 }

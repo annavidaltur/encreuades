@@ -224,6 +224,9 @@ g:hover rect.letter{
   align-items: flex-start;
   font-size: 0.9rem;
 }
+.clueDiv.active{
+  background-color: #f2c2f3;
+}
 .clueNum{
   display: inline-block;
   text-align: right;
