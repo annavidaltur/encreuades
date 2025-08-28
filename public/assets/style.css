@@ -232,6 +232,7 @@ g:hover rect.letter{
 .barra-pista{
   background-color: #e7e7e7;
   padding-left: 20px;
+  min-height: 42px;
 }
 
 /* Panel pistes */
