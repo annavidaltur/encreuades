@@ -608,9 +608,8 @@ function highlightClue(){
     if(clue){
         clue.classList.add('active');
         if (!/Mobi|Android/i.test(navigator.userAgent)) {
-            clue.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            clue.scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'nearest'})
         }
-        // clue.scrollIntoView({behavior: 'smooth', block: 'center'})
     }
 }
 
