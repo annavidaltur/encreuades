@@ -96,6 +96,12 @@ function buildPuzzle(data, id, tipus) {
     checkBtn.parentNode.replaceChild(newCheckBtn, checkBtn);
     newCheckBtn.addEventListener("click", () => checkPuzzle(tipus, id));
 
+    // Afegir id a botó mostrar lletra
+    var showLetterBtn = document.getElementById("btnMostrarLletra");
+    var newShowLetterBtn = showLetterBtn.cloneNode(true);
+    showLetterBtn.parentNode.replaceChild(newShowLetterBtn, showLetterBtn);
+    newShowLetterBtn.addEventListener("click", () => showLetter(tipus, id));
+
     // Afegir id a botó resoldre
     var solveBtn = document.getElementById("btnResoldre");
     var newSolveBtn = solveBtn.cloneNode(true);
@@ -594,6 +600,22 @@ async function solvePuzzle(tipus, id){
     modal.hide();
 }
 
+// mostra la lletra seleccionada
+function showLetter(tipus, id){
+    if(id == undefined || tipus == undefined || !currentCell)
+        return;
+
+    fetch(`/api/crossword/${id}/letter?` + new URLSearchParams({ 
+        type: tipus,
+        x: currentCell.dataset.x,
+        y: currentCell.dataset.y
+    }))
+    .then(res => res.text())
+    .then(letter => {
+        if(letter)
+            currentCell.lastElementChild.innerText = letter;
+    });
+}
 // mostra la pista activa
 function highlightClue(){
     // netegem estat anterior

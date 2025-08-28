@@ -74,6 +74,21 @@ app.get("/api/crossword/:id/solve", (req, res) => {
   }
 });
 
+// mostrar lletra
+app.get("/api/crossword/:id/letter", (req, res) => {
+  try {
+    const filePath = path.join(__dirname, req.query.type, `${req.params.id}.ipuz`);
+    const puzzle = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+    const letter = puzzle.solution[req.query.y][req.query.x];
+
+    if(!letter)
+      return;
+    
+    res.status(200).send(letter);
+  } catch (err) {
+    res.status(404).json({ error: "Crossword no trobat" });
+  }
+});
 // check resultat
 app.post("/api/crossword/:id", (req, res) => {
   try {
