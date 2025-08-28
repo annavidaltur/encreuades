@@ -64,6 +64,21 @@ html, body {
   color: #450359;
 }
 
+.btn-crossword-modal{
+  background-color:#450359;
+  border: 1px solid #450359;
+  color: #fff;
+  border-radius: 0;
+  font-size: 1rem;
+  transition: all 0.2 ease-in-out;
+}
+.btn-crossword-modal:hover{
+  background-color: #dc8add;
+  border-color: #450359;
+  color: #450359;
+}
+
+.btn-crossword-modal:active,
 .btn-crossword:active,
 .btn-crossword-outline:active{
   transform: scale(0.97)

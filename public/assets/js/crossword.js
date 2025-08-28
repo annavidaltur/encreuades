@@ -581,19 +581,17 @@ async function solvePuzzle(tipus, id){
 
     const res = await fetch(`/api/crossword/${id}/solve?` + new URLSearchParams({ type: tipus}));
     const solution = await res.json();
-    console.log('solution', solution)
     for (let j = 0; j < height; j++) {
         for(let i=0; i<width; i++){
             const cell = document.querySelector(`.cell[data-x="${i}"][data-y="${j}"]`);
             const sol = solution[j][i];
-            if(j == 2 && i == 2){
-                console.log('cell', cell)
-                console.log('sol', sol)
-            }
             if(sol !== "#")
                 cell.lastElementChild.innerText = sol;
         }
     }
+    var modalResoldre = document.getElementById('modalResoldre');
+    var modal = bootstrap.Modal.getInstance(modalResoldre)
+    modal.hide();
 }
 
 // mostra la pista activa

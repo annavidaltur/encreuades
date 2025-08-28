@@ -103,7 +103,7 @@
   			<a class="navbar-brand" href="#">Navbar</a>
 			<div class="ms-auto">
 				<button id="btnComprovar" class="btn btn-crossword-outline px-3 py-2">Comprovar</button>
-				<button id="btnResoldre" class="btn btn-crossword-outline px-3 py-2 mx-2">Resoldre</button>
+				<button class="btn btn-crossword-outline px-3 py-2 mx-2" data-bs-toggle="modal" data-bs-target="#modalResoldre">Resoldre</button>
 			</div>
   		</nav>
 		<nav class="navbar barra-pista navbar-light border-bottom border-top">
@@ -133,6 +133,45 @@
   	</div>
 
 </div>
+
+<!-- Modal resoldre -->
+<div class="modal fade" id="modalResoldre" tabindex="-1" aria-labelledby="modalResoldreLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-0">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalResoldreLabel"><strong>Resoldre la quadrícula sencera</strong></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Estàs segur de què vols mostrar totes les respostes?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-crossword-outline" data-bs-dismiss="modal">Cancel·la</button>
+        <button id="btnResoldre" class="btn btn-crossword-modal" type="button" >Mostrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal resoldre -->
+<div class="modal fade" id="modalResoldre" tabindex="-1" aria-labelledby="modalResoldreLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalResoldreLabel"><strong>Resoldre la quadrícula sencera</strong></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Estàs segur de què vols mostrar totes les respostes?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-crossword-outline" data-bs-dismiss="modal">Cancel·la</button>
+        <button id="btnResoldre" class="btn btn-crossword-modal" type="button" >Mostrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <!-- Footer -->
 <!-- <footer class="footer">© 2025 Anna</footer> -->
