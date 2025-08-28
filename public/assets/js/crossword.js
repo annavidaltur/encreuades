@@ -1,6 +1,6 @@
 // carregarPuzzles('minis');
-clickPuzzle("minis", "20250818")
-// clickPuzzle("maxis", "20250829") // 15x15
+// clickPuzzle("minis", "20250818")
+clickPuzzle("maxis", "20250826") // 15x15
 
 // Crea la llista de puzzles
 let tipus = "";
@@ -169,7 +169,7 @@ function addClue(list, n, clue, dir) {
     clueDiv.classList.add("clueDiv");
     clueDiv.dataset.num = n;
     clueDiv.dataset.dir = dir;
-
+    clueDiv.addEventListener("click", () => clueClick(n, dir));
     const clueNum = document.createElement("span");
     clueNum.classList.add("clueNum");
     clueNum.innerText = n;
@@ -179,7 +179,7 @@ function addClue(list, n, clue, dir) {
     clueText.innerText = clue;
 
     clueDiv.appendChild(clueNum);
-    clueDiv.appendChild(clueText);
+    clueDiv.appendChild(clueText);    
     list.appendChild(clueDiv);
 }
 
@@ -607,7 +607,10 @@ function highlightClue(){
     const clue = document.querySelector(`.clueDiv[data-dir="${currentDir}"][data-num="${clueNum}"]`);
     if(clue){
         clue.classList.add('active');
-        clue.scrollIntoView({behavior: 'smooth', block: 'center'})
+        if (!/Mobi|Android/i.test(navigator.userAgent)) {
+            clue.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        // clue.scrollIntoView({behavior: 'smooth', block: 'center'})
     }
 }
 
@@ -653,4 +656,15 @@ function getClueNum(){
         }
     }
     return null;
+}
+
+function clueClick(n, dir){
+    const spPistes = document.querySelectorAll('.nPista');
+    const candidate = Array.from(spPistes).filter(sp => sp.innerText == n)[0]; // principi de paraula
+    
+    if(candidate){
+        currentCell = candidate.parentNode;
+        currentDir = dir;
+        updateSelection();
+    }
 }

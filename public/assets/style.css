@@ -222,7 +222,7 @@ g:hover rect.letter{
 .clueDiv{
   display: flex;
   align-items: flex-start;
-  font-size: 0.9rem;
+  font-size: 0.9rem;  
 }
 .clueDiv.active{
   background-color: #f2c2f3;
@@ -242,4 +242,9 @@ hr{
   margin-top: 2px;
   margin-bottom: 10px;
   max-width: 230px;
+}
+
+.clue-list{
+  max-height: 500px;
+  overflow-y:auto;
 }
