@@ -176,6 +176,10 @@ g:hover rect.letter{
  max-width: 500px;
 }
 
+#title{
+  font-size: 0.9rem;
+}
+
 .cell{
   border-bottom: 1px solid #5b5b5b;
   border-right: 1px solid #5b5b5b;

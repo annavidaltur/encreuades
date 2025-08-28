@@ -90,6 +90,11 @@ function buildPuzzle(data, id, tipus) {
     grid.style.gridTemplateColumns = `repeat(${width}, 1fr)`;
     grid.style.gridTemplateRows = `repeat(${height}, 1fr)`;
 
+    // title
+    const title = document.querySelector("#title");
+    title.innerHTML = `${data.title} <em>per ${data.author}</em>`;
+
+
     // Afegir id a botó comprovar
     var checkBtn = document.getElementById("btnComprovar");
     var newCheckBtn = checkBtn.cloneNode(true);
