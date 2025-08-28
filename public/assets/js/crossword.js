@@ -108,6 +108,12 @@ function buildPuzzle(data, id, tipus) {
     solveBtn.parentNode.replaceChild(newSolveBtn, solveBtn);
     newSolveBtn.addEventListener("click", () => solvePuzzle(tipus, id));
 
+    // Afegir botó enrere
+    var backBtn = document.getElementById("btnEnrere");
+    var newBackBtn = backBtn.cloneNode(true);
+    backBtn.parentNode.replaceChild(newBackBtn, backBtn);
+    newBackBtn.addEventListener("click", () => carregarPuzzles(tipus));
+
     // Netejar previ
     document.querySelectorAll('.cell').forEach(c => {
         c.classList.remove('current-cell', 'highlight-cell', 'cellBlack')
@@ -630,6 +636,10 @@ function highlightClue(){
         if (!/Mobi|Android/i.test(navigator.userAgent)) {
             clue.scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'nearest'})
         }
+        const bannerClue = document.querySelector('#bannerClue');
+        console.log(clue)
+        const dir = currentDir === "across" ? "H" : "V";
+        bannerClue.innerHTML = `<span><b>${clue.firstChild.innerText} ${dir}</b> ${clue.lastChild.innerText.trim()}</span>`;
     }
 }
 

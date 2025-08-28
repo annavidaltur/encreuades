@@ -226,6 +226,7 @@ g:hover rect.letter{
 /* NAVBAR PUZZLE */
 .navbar-puzzle{
   padding-left: 20px;
+  padding-right: 20px;
 }
 
 .barra-pista{
