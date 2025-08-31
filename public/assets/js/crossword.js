@@ -1,13 +1,51 @@
+// Variables globals
+let currentTipus = "minis";
+let currentId = "";
+let currentCell = null;
+let currentDir = 'across';
+let width = 0;
+let height = 0;
+
+const isMobile = checkDevice();
+function checkDevice() {
+  let check = false;
+  (function(a){if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(a)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0,4))) check = true;})(navigator.userAgent||navigator.vendor||window.opera);
+  return check;
+};
+
+// agefir un únic input
+const hiddenInput = document.createElement("input");
+hiddenInput.type = "text";
+hiddenInput.maxLength = 1;
+hiddenInput.style.position = "absolute";
+hiddenInput.style.width = "1px";
+hiddenInput.style.height = "1px";
+hiddenInput.style.opacity = "0.01";
+hiddenInput.style.zIndex = "1000";
+hiddenInput.style.pointerEvents = "auto";
+hiddenInput.autocapitalize = "characters";
+hiddenInput.id = "hiddenInput"
+if(isMobile){
+    hiddenInput.addEventListener("input", (e) => onInputMobile(e));
+    hiddenInput.addEventListener("keydown", (e) => {
+        // només intercepta tecles de control
+        if (["Enter","Backspace","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)) {
+        onKeydown(e, e.key);
+        }
+    });
+} else hiddenInput.addEventListener("keydown", (e) => onKeydownDesktop(e));
+document.body.appendChild(hiddenInput);
+
+
 // carregarPuzzles('minis');
-// clickPuzzle("minis", "20250818")
-clickPuzzle("maxis", "20250826") // 15x15
+clickPuzzle("20250818")
+// clickPuzzle("maxis", "20250826") // 15x15
 
 // Crea la llista de puzzles
-let tipus = "";
 async function carregarPuzzles(tipus) {
     document.getElementById("puzzleSelect").style.display = "block"
 	document.getElementById("board").style.display = "none"
-    tipus = tipus;
+    currentTipus = tipus;
     const res = await fetch(`/api/crosswords?` + new URLSearchParams({ type: tipus}));
     const puzzles = await res.json();
     const select = document.getElementById("puzzleSelect");
@@ -56,7 +94,7 @@ async function carregarPuzzles(tipus) {
         puzDiv.value = puzzle.id;
 
         // event onclick
-        puzDiv.addEventListener("click", e => clickPuzzle(tipus, puzzle.id));
+        puzDiv.addEventListener("click", () => clickPuzzle(puzzle.id));
 
         // afegir divPuz al divParent
         select.appendChild(puzDiv);
@@ -64,19 +102,21 @@ async function carregarPuzzles(tipus) {
 }
 
 // Event onClick element llista puzzle
-async function clickPuzzle(tipus, id) {
+async function clickPuzzle(id) {
     if (id == undefined)
         return;
     document.getElementById("puzzleSelect").style.display = "none";
     document.getElementById("board").style.display = "block";
 
-    const res = await fetch(`/api/crossword/${id}?` + new URLSearchParams({ type: tipus }));
+    currentId = id;
+
+    const res = await fetch(`/api/crossword/${currentId}?` + new URLSearchParams({ type: currentTipus }));
     const data = await res.json();
-    buildPuzzle(data, id, tipus);
+    buildPuzzle(data);
 }
 
 // Crea grid i pistes del puzzle
-function buildPuzzle(data, id, tipus) {
+function buildPuzzle(data) {
     const grid = document.getElementById("grid");
     grid.innerHTML = "";
     width = data.dimensions.width;
@@ -99,25 +139,25 @@ function buildPuzzle(data, id, tipus) {
     var checkBtn = document.getElementById("btnComprovar");
     var newCheckBtn = checkBtn.cloneNode(true);
     checkBtn.parentNode.replaceChild(newCheckBtn, checkBtn);
-    newCheckBtn.addEventListener("click", () => checkPuzzle(tipus, id));
+    newCheckBtn.addEventListener("click", () => checkPuzzle());
 
     // Afegir id a botó mostrar lletra
     var showLetterBtn = document.getElementById("btnMostrarLletra");
     var newShowLetterBtn = showLetterBtn.cloneNode(true);
     showLetterBtn.parentNode.replaceChild(newShowLetterBtn, showLetterBtn);
-    newShowLetterBtn.addEventListener("click", () => showLetter(tipus, id));
+    newShowLetterBtn.addEventListener("click", () => showLetter());
 
     // Afegir id a botó resoldre
     var solveBtn = document.getElementById("btnResoldre");
     var newSolveBtn = solveBtn.cloneNode(true);
     solveBtn.parentNode.replaceChild(newSolveBtn, solveBtn);
-    newSolveBtn.addEventListener("click", () => solvePuzzle(tipus, id));
+    newSolveBtn.addEventListener("click", () => solvePuzzle());
 
     // Afegir botó enrere
     var backBtn = document.getElementById("btnEnrere");
     var newBackBtn = backBtn.cloneNode(true);
     backBtn.parentNode.replaceChild(newBackBtn, backBtn);
-    newBackBtn.addEventListener("click", () => carregarPuzzles(tipus));
+    newBackBtn.addEventListener("click", () => carregarPuzzles(currentTipus));
 
     // Netejar previ
     document.querySelectorAll('.cell').forEach(c => {
@@ -135,14 +175,16 @@ function buildPuzzle(data, id, tipus) {
             cell.classList.add("cell");
             cell.dataset.x = j;
             cell.dataset.y = i;
-            cell.addEventListener("click", () => onClickCell(cell));
-            cell.tabIndex = 0; // Per a que s'active el kwydown pq un div no és focusable per defecte, i keydown sols es dispara quan l'element té el focus
-            cell.addEventListener("keydown", (e) => onKeydown(e, cell, tipus, id));
             if (i == 0)
                 cell.classList.add("firstRow");
             if (j == 0)
                 cell.classList.add("firstCol");
             
+
+            // events
+            cell.addEventListener("click", () => onClickCell(cell));
+            // cell.addEventListener("keydown", (e) => onKeydownDesktop(e));
+            cell.tabIndex = 0; // Per a que s'active el kwydown pq un div no és focusable per defecte, i keydown sols es dispara quan l'element té el focus
 
             // afegir número de paraula
             if (puzContent == "#") // black square
@@ -162,11 +204,14 @@ function buildPuzzle(data, id, tipus) {
             const cellLetter = document.createElement("span");
             if(width < 7)
                 cellLetter.classList.add("cellLetterMini")
-            else cellLetter.classList.add("cellLetterBig");
+            else cellLetter.classList.add("cellLetterBig");            
+
             cell.appendChild(cellLetter)
             grid.appendChild(cell)
         }
     }
+
+    
 
     // clues
     const listAcross = document.querySelector(".across-clues").firstElementChild;
@@ -200,11 +245,8 @@ function addClue(list, n, clue, dir) {
     list.appendChild(clueDiv);
 }
 
-//
-let currentCell = null;
-let currentDir = 'across';
-let width = 0;
-let height = 0;
+
+
 
 function onClickCell(cell){
     if(cell.classList.contains("cellBlack"))
@@ -215,7 +257,12 @@ function onClickCell(cell){
         else currentDir = 'across';
     } else {
         currentCell = cell;
+        const rect = currentCell.getBoundingClientRect();
+        hiddenInput.style.left = rect.left + "px";
+        hiddenInput.style.top = rect.top + "px";
+        
     }
+    hiddenInput.focus();
     updateSelection();
 }
 
@@ -285,16 +332,33 @@ function updateSelection(){
 
 }
 
-function onKeydown(event, cell, tipus, id){
+function onKeydownDesktop(event){
+    if(!currentCell) return;
+    console.log("keydown!!")
+
     const key = event.key;
+
+    onKeydown(event, key);    
+}
+
+function onInputMobile(event){
+    if(!currentCell) return;
+
+    const key = event.target.value.slice(-1).toUpperCase();
+    event.target.value = "";
+
+    onKeydown(event, key)    
+}
+
+function onKeydown(event, key){
     if(key === "Enter"){
         event.preventDefault();
-        onEnterKey(cell);
+        onEnterKey();
         return;
     }
     else if(key === "Backspace"){
         event.preventDefault();
-        onBackKey(cell);
+        onBackKey(currentCell);
         return;
     }
     else if(key === "ArrowDown"){
@@ -322,27 +386,29 @@ function onKeydown(event, cell, tipus, id){
 
     if (!/^[a-zA-Z]$/.test(key)) return;
     
-    const cellText = cell.lastElementChild; // últim element perque si té nPista és l'1, i si no el 0
+    const cellText = currentCell.lastElementChild; // últim element perque si té nPista és l'1, i si no el 0
     cellText.innerText = key.toUpperCase(); // mostrem la lletra a la cell actual
 
     // mou la selecció a la següent cell
     let nextCell;
     if(currentDir === "across")
     {
-        const nextX = Number(cell.dataset.x) + 1;
-        nextCell = document.querySelector(`.cell[data-x="${nextX}"][data-y="${cell.dataset.y}"]:not(.cellBlack)`)
+        const nextX = Number(currentCell.dataset.x) + 1;
+        nextCell = document.querySelector(`.cell[data-x="${nextX}"][data-y="${currentCell.dataset.y}"]:not(.cellBlack)`)
         
     } else { // down
-        const nextY = Number(cell.dataset.y) + 1;
-        nextCell = document.querySelector(`.cell[data-x="${cell.dataset.x}"][data-y="${nextY}"]:not(.cellBlack)`)
+        const nextY = Number(currentCell.dataset.y) + 1;
+        nextCell = document.querySelector(`.cell[data-x="${currentCell.dataset.x}"][data-y="${nextY}"]:not(.cellBlack)`)
     }
 
 
     if(nextCell){
         currentCell = nextCell;
-        nextCell.focus();
+        // nextCell.focus();
+        hiddenInput.focus();
     } else { // final de paraula
-        currentCell = cell;
+        // currentCell = cell;// ara cell no existeix
+        onEnterKey()
     }
 
     updateSelection();
@@ -350,21 +416,20 @@ function onKeydown(event, cell, tipus, id){
     // comprovar si ha escrit totes les lletres
     const allCells = Array.from(document.querySelectorAll(`.cell`));
     const cellsJugables = allCells.filter((c) => !c.classList.contains("cellBlack"));
-    
     const isFinished = cellsJugables.every(c => c.lastElementChild?.innerText.trim() !== "");
-    if(!isFinished) return; // alguna cell està empty      
-    checkPuzzle(tipus, id);
+    if(isFinished)
+        checkPuzzle();
 }
 
-function onEnterKey(cell) {
-    // TODO: Tornar al principi si hem arribat al final de la graella
+function onEnterKey() {
     if (!currentCell) return;
 
-    const x = Number(cell.dataset.x);
-    const y = Number(cell.dataset.y);
+    const x = Number(currentCell.dataset.x);
+    const y = Number(currentCell.dataset.y);
 
     let nextCell;
 
+    console.log("enteraaaaa!")
     if (currentDir === 'across') {
         // obtenim el x de la pròxima paraula
         let nextX = x + 1;
@@ -443,9 +508,10 @@ function onEnterKey(cell) {
 
     if (nextCell) {
         currentCell = nextCell;
-        updateSelection();
-        currentCell.focus();
+        // currentCell.focus();
+        hiddenInput.focus()
     }
+    updateSelection();
 }
 
 function onBackKey(cell){
@@ -471,7 +537,7 @@ function onBackKey(cell){
     if (backCell && !backCell.classList.contains("cellBlack")) {
         currentCell = backCell;
         updateSelection();
-        currentCell.focus();
+        // currentCell.focus();
     }
 }
 
@@ -548,8 +614,8 @@ function onArrowLeftKey(){
 }
 
 // comprova tota la graella
-function checkPuzzle(tipus, id){
-    if(id == undefined)
+function checkPuzzle(){
+    if(currentId == undefined)
         return;
 
     let mapped = [];
@@ -564,7 +630,7 @@ function checkPuzzle(tipus, id){
         mapped.push(row)
     }
 
-    fetch(`/api/crossword/${id}?type=${tipus}`, {
+    fetch(`/api/crossword/${currentId}?type=${currentTipus}`, {
         method: "POST",
         headers: {'Content-Type': 'application/json'}, 
         body: JSON.stringify(mapped)
@@ -592,11 +658,11 @@ function checkPuzzle(tipus, id){
 }
 
 // mostra la solució
-async function solvePuzzle(tipus, id){
-    if(id == undefined)
+async function solvePuzzle(){
+    if(currentId == undefined)
         return;
 
-    const res = await fetch(`/api/crossword/${id}/solve?` + new URLSearchParams({ type: tipus}));
+    const res = await fetch(`/api/crossword/${currentId}/solve?` + new URLSearchParams({ type: currentTipus}));
     const solution = await res.json();
     for (let j = 0; j < height; j++) {
         for(let i=0; i<width; i++){
@@ -612,12 +678,12 @@ async function solvePuzzle(tipus, id){
 }
 
 // mostra la lletra seleccionada
-function showLetter(tipus, id){
-    if(id == undefined || tipus == undefined || !currentCell)
+function showLetter(){
+    if(currentId == undefined || currentTipus == undefined || !currentCell)
         return;
 
-    fetch(`/api/crossword/${id}/letter?` + new URLSearchParams({ 
-        type: tipus,
+    fetch(`/api/crossword/${currentId}/letter?` + new URLSearchParams({ 
+        type: currentTipus,
         x: currentCell.dataset.x,
         y: currentCell.dataset.y
     }))
@@ -642,7 +708,6 @@ function highlightClue(){
             clue.scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'nearest'})
         }
         const bannerClue = document.querySelector('#bannerClue');
-        console.log(clue)
         const dir = currentDir === "across" ? "H" : "V";
         bannerClue.innerHTML = `<span><b>${clue.firstChild.innerText} ${dir}</b> ${clue.lastChild.innerText.trim()}</span>`;
     }
