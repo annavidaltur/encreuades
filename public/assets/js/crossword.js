@@ -3,6 +3,7 @@ let currentTipus = "minis";
 let currentId = "";
 let currentCell = null;
 let currentDir = 'across';
+let currentTitle = "";
 let width = 0;
 let height = 0;
 
@@ -36,6 +37,22 @@ if(isMobile){
 } else hiddenInput.addEventListener("keydown", (e) => onKeydownDesktop(e));
 document.body.appendChild(hiddenInput);
 
+//timer
+var func;
+function startTimer(){
+    var start = Date.now();
+    func = setInterval(function() {
+        var delta = Date.now() - start; // milliseconds elapsed since start
+        var minutes = Math.floor(delta / 60000);
+        var seconds = ((delta % 60000) / 1000).toFixed(0);
+        document.getElementById("timer").innerHTML = seconds == 60 ?
+            (minutes+1) + ":00" :
+            minutes + ":" + (seconds < 10 ? "0" : "") + seconds
+    }, 1000); // update about every second
+}
+function stopTimer() {
+    clearInterval(func);
+}
 
 // carregarPuzzles('minis');
 clickPuzzle("20250818")
@@ -113,6 +130,15 @@ async function clickPuzzle(id) {
     const res = await fetch(`/api/crossword/${currentId}?` + new URLSearchParams({ type: currentTipus }));
     const data = await res.json();
     buildPuzzle(data);
+
+    // Timer
+    clearTimer(); // netejar possible estat anterior
+    startTimer();
+}
+
+function clearTimer(){
+    stopTimer();
+    document.querySelector("#timer").innerText = "";
 }
 
 // Crea grid i pistes del puzzle
@@ -133,25 +159,7 @@ function buildPuzzle(data) {
     // title
     const title = document.querySelector("#title");
     title.innerHTML = `${data.title} <em>per ${data.author}</em>`;
-
-
-    // Afegir id a botó comprovar
-    var checkBtn = document.getElementById("btnComprovar");
-    var newCheckBtn = checkBtn.cloneNode(true);
-    checkBtn.parentNode.replaceChild(newCheckBtn, checkBtn);
-    newCheckBtn.addEventListener("click", () => checkPuzzle());
-
-    // Afegir id a botó mostrar lletra
-    var showLetterBtn = document.getElementById("btnMostrarLletra");
-    var newShowLetterBtn = showLetterBtn.cloneNode(true);
-    showLetterBtn.parentNode.replaceChild(newShowLetterBtn, showLetterBtn);
-    newShowLetterBtn.addEventListener("click", () => showLetter());
-
-    // Afegir id a botó resoldre
-    var solveBtn = document.getElementById("btnResoldre");
-    var newSolveBtn = solveBtn.cloneNode(true);
-    solveBtn.parentNode.replaceChild(newSolveBtn, solveBtn);
-    newSolveBtn.addEventListener("click", () => solvePuzzle());
+    currentTitle = data.title;
 
     // Afegir botó enrere
     var backBtn = document.getElementById("btnEnrere");
@@ -334,7 +342,6 @@ function updateSelection(){
 
 function onKeydownDesktop(event){
     if(!currentCell) return;
-    console.log("keydown!!")
 
     const key = event.key;
 
@@ -417,8 +424,28 @@ function onKeydown(event, key){
     const allCells = Array.from(document.querySelectorAll(`.cell`));
     const cellsJugables = allCells.filter((c) => !c.classList.contains("cellBlack"));
     const isFinished = cellsJugables.every(c => c.lastElementChild?.innerText.trim() !== "");
-    if(isFinished)
-        checkPuzzle();
+    
+    if(isFinished){
+        isOk().then(ok => {
+            if(!ok){
+                // Fi de joc amb errors
+                var modalErrors = new bootstrap.Modal(document.getElementById('modalErrors'))
+                modalErrors.show();
+            } else {
+                // Fi de joc correcte
+                finishCorrect();            
+            }
+        })
+    }
+}
+function finishCorrect(){
+    stopTimer();
+    var modalFi = new bootstrap.Modal(document.getElementById('modalFi'))
+    modalFi.show();
+
+    // passem el timer al modal
+    const interval = document.querySelector("#timer");
+    document.querySelector("#intervalFi").innerText = interval.innerText;
 }
 
 function onEnterKey() {
@@ -429,7 +456,6 @@ function onEnterKey() {
 
     let nextCell;
 
-    console.log("enteraaaaa!")
     if (currentDir === 'across') {
         // obtenim el x de la pròxima paraula
         let nextX = x + 1;
@@ -657,6 +683,48 @@ function checkPuzzle(){
     })
 }
 
+// comprova si hi ha errors en la graella
+function isOk(){
+    if(currentId == undefined)
+        return Promise.resolve(false);
+    
+    let mapped = [];
+    for (let j = 0; j < height; j++) {
+        let row = [];
+        for(let i=0; i<width; i++){
+            const cell = document.querySelector(`.cell[data-x="${i}"][data-y="${j}"]`);
+            if (cell.classList.contains("cellBlack"))
+                row.push("#");
+            else row.push(cell.lastElementChild.innerText);
+        }
+        mapped.push(row)
+    }
+
+    return fetch(`/api/crossword/${currentId}?type=${currentTipus}`, {
+        method: "POST",
+        headers: {'Content-Type': 'application/json'}, 
+        body: JSON.stringify(mapped)
+    }).then(response => response.json())
+    .then(result => {
+        for (let j = 0; j < height; j++) {
+            for(let i=0; i<width; i++){
+                const cell = document.querySelector(`.cell[data-x="${i}"][data-y="${j}"]`);
+                if (cell.classList.contains("cellBlack"))
+                    continue;
+                else {
+                    const res = result[j][i];
+                    console.log('res', res, j, i)
+                    if(res == "incorrect")
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    })
+}
+
 // mostra la solució
 async function solvePuzzle(){
     if(currentId == undefined)
@@ -675,6 +743,9 @@ async function solvePuzzle(){
     var modalResoldre = document.getElementById('modalResoldre');
     var modal = bootstrap.Modal.getInstance(modalResoldre)
     modal.hide();
+
+    // finished
+    finishCorrect();
 }
 
 // mostra la lletra seleccionada
@@ -766,4 +837,34 @@ function clueClick(n, dir){
         currentDir = dir;
         updateSelection();
     }
+}
+
+// compartir resultat
+const shareOnTwitter = () => {
+    const temps = document.querySelector("#timer").innerText;
+    const text = `He resolt l'encreuat ${currentTitle} en ${temps}. Intenta-ho tu també! https://lalala.com`;
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+};
+
+const shareOnFacebook = () => {
+    const temps = document.querySelector("#timer").innerText;
+    const text = `He resolt l'encreuat ${currentTitle} en ${temps}. Intenta-ho tu també! https://lalala.com`;
+    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}&quote=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+};
+
+const shareOnWhatsApp = () => {
+    const temps = document.querySelector("#timer").innerText;
+    const text = `He resolt l'encreuat ${currentTitle} en ${temps}. Intenta-ho tu també! https://lalala.com`;
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+};
+
+// botó "Més encreuats" del modal fi de joc
+function mesEncreuatsClick(){
+    var modalFi = document.getElementById('modalFi');
+    var modal = bootstrap.Modal.getInstance(modalFi)
+    modal.hide();
+    carregarPuzzles(currentTipus)
 }

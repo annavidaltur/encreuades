@@ -219,6 +219,12 @@ g:hover rect.letter{
 }
 .cellLetterMini{
   font-size: 2rem;
+  text-align: center;
+  border: none; 
+  background: transparent;
+  position: absolute;
+  /* opacity: 0;
+  z-index: -1; */
 }
 .cellLetterBig{
   font-size: 1rem;
@@ -237,6 +243,14 @@ g:hover rect.letter{
   background-color: #e7e7e7;
   padding-left: 20px;
   min-height: 42px;
+}
+
+#timer{
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 /* Panel pistes */
