@@ -130,7 +130,7 @@ g:hover rect.letter{
   background-color: #fff;
 }
 .puzDiv:hover{
-  background-color: rgb(230, 230, 230);
+  background-color: #e6e6e6;
 }
 
 .puzLeft{
@@ -138,6 +138,19 @@ g:hover rect.letter{
   flex-direction: row;  
   align-items: center;
 }
+.puzRight{
+  display: flex;
+  flex-direction: row;  
+  align-items: center;
+}
+.puzRightLabel{
+    display: flex;
+    flex-direction: column;  
+    align-items: center;
+    font-size: 0.8em;
+
+}
+
 
 .puzIcon {
   width: 32px;
@@ -148,7 +161,9 @@ g:hover rect.letter{
 
 .puzArrow{
   font-size: 2.5rem;
-  color: #333333
+  color: #333333;
+  margin-left: 10px;
+  margin-bottom: 6px;
 }
 
 .pDate {
@@ -163,9 +178,37 @@ g:hover rect.letter{
   color: #333333;
 }
 
+.progress-ring{
+  --p: 0;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.progress-ring.guai{
+  background: 
+    radial-gradient(closest-side, white 70%, transparent 80% 100%),
+    conic-gradient(#4CFF1F calc(var(--p) * 1%), #c7c7c7 0); 
+}
+.progress-ring.regu{
+  background: 
+    radial-gradient(closest-side, white 70%, transparent 80% 100%),
+    conic-gradient(#FFD21F  calc(var(--p) * 1%), #c7c7c7 0); 
+}
+.progress-ring::before{
+  content: var(--percentatge);
+  color: rgb(68, 68, 68);
+}
+
+
+
 /* GRID */
 #board{
-  display: none;
+  display: none;  
   max-height: 500px;
 }
 

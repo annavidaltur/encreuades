@@ -1,5 +1,5 @@
 // Variables globals
-let currentTipus = "minis";
+let currentTipus = "";
 let currentId = "";
 let currentCell = null;
 let currentDir = 'across';
@@ -45,17 +45,22 @@ function startTimer(){
         var delta = Date.now() - start; // milliseconds elapsed since start
         var minutes = Math.floor(delta / 60000);
         var seconds = ((delta % 60000) / 1000).toFixed(0);
-        document.getElementById("timer").innerHTML = seconds == 60 ?
+        var text = seconds == 60 ?
             (minutes+1) + ":00" :
-            minutes + ":" + (seconds < 10 ? "0" : "") + seconds
+            minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+        document.getElementById("timer").innerHTML = text;
+        
+        // let progress = JSON.parse(localStorage.getItem("progress"));
+        // progress[currentTipus][currentId].timer = text;
+        // localStorage.setItem("progress", JSON.stringify(progress));    
     }, 1000); // update about every second
 }
 function stopTimer() {
     clearInterval(func);
 }
 
-// carregarPuzzles('minis');
-clickPuzzle("20250818")
+carregarPuzzles('minis');
+// clickPuzzle("20250818")
 // clickPuzzle("maxis", "20250826") // 15x15
 
 // Crea la llista de puzzles
@@ -67,13 +72,14 @@ async function carregarPuzzles(tipus) {
     const puzzles = await res.json();
     const select = document.getElementById("puzzleSelect");
     select.innerHTML = "";
+    lsInitProgress(tipus); // inicialitzar localstorage
     puzzles.forEach(puzzle => {
         const puzDiv = document.createElement("div");
         puzDiv.classList.add("puzDiv");
 
         // part esquerra
         const left = document.createElement("div");
-        left.classList.add("puzLeft");
+        left.classList.add("puzLeft");        
 
         // imatge
         const left1 = document.createElement("div");
@@ -96,18 +102,47 @@ async function carregarPuzzles(tipus) {
         sp.textContent = puzzle.title + " / " + puzzle.author;
         left2.appendChild(sp);
 
-        // afegir titol i author a divPuz
+        // afegir titol i author a part esq
         left.appendChild(left1)
         left.appendChild(left2);
+
+        
+        // part dreta
+        const right = document.createElement("div");
+        right.classList.add("puzRight");
+        const right2 = document.createElement("div");
+        right2.classList.add("puzRightLabel");
+
+        const finished = lsIsFinished(tipus, puzzle.id);
+        const perLabel = document.createElement("div");
+        const finLabel = document.createElement("div");
+        if(finished === undefined){
+            finLabel.textContent = "";
+        } else {
+            const percentatge = lsGetPercentatge(tipus, puzzle.id);
+            perLabel.classList.add("progress-ring")
+            perLabel.classList.add(percentatge > 50 ? "guai" : "regu");
+
+            perLabel.style.setProperty("--p", percentatge);         
+            perLabel.style.setProperty("--percentatge", `"${percentatge}%"`);         
+
+            finLabel.innerText = finished ? "COMPLET" : "EN CURS";
+        }
 
         // icona >
         const arrow = document.createElement("span");
         arrow.classList.add("puzArrow");
         arrow.textContent = "›";
 
+        // afegir percentatge, label i fletxa a la part dreta
+        right2.appendChild(perLabel);
+        right2.appendChild(finLabel);
+        right.appendChild(right2);
+        right.appendChild(arrow);
+
         // muntar puzDiv
         puzDiv.appendChild(left);
-        puzDiv.appendChild(arrow);
+        puzDiv.appendChild(right);
         puzDiv.value = puzzle.id;
 
         // event onclick
@@ -116,6 +151,10 @@ async function carregarPuzzles(tipus) {
         // afegir divPuz al divParent
         select.appendChild(puzDiv);
     });
+
+    // netejar grid
+    const grid = document.querySelector("#grid");
+    grid.innerHTML = "";
 }
 
 // Event onClick element llista puzzle
@@ -130,6 +169,13 @@ async function clickPuzzle(id) {
     const res = await fetch(`/api/crossword/${currentId}?` + new URLSearchParams({ type: currentTipus }));
     const data = await res.json();
     buildPuzzle(data);
+
+    // storage
+    if(lsInitProgressPuzzle(data.puzzle)){
+        mostrarModalFi(); // modal fi de joc
+        getSolution(); // omplir el grid amb la solució
+        return; // evitar iniciar el timer
+    }
 
     // Timer
     clearTimer(); // netejar possible estat anterior
@@ -173,6 +219,12 @@ function buildPuzzle(data) {
         c.lastElementChild.innerText = "";
     })
 
+    // storage
+    let gridProgress;
+    const progress = JSON.parse(localStorage.getItem("progress"))
+    if(progress !== null && progress[currentTipus][currentId])
+        gridProgress = progress[currentTipus][currentId].grid;
+
     // Graella
     for (let i = 0; i < width; i++) {
         for (let j = 0; j < height; j++) {
@@ -213,6 +265,11 @@ function buildPuzzle(data) {
             if(width < 7)
                 cellLetter.classList.add("cellLetterMini")
             else cellLetter.classList.add("cellLetterBig");            
+
+            // storage
+            if(gridProgress && gridProgress[i][j] != "#"){
+                cellLetter.innerText = gridProgress[i][j];
+            }
 
             cell.appendChild(cellLetter)
             grid.appendChild(cell)
@@ -358,14 +415,11 @@ function onInputMobile(event){
 }
 
 function onKeydown(event, key){
+    if(lsIsFinished(currentTipus, currentId)) return; // permitim navegar però no modificar el grid
+
     if(key === "Enter"){
         event.preventDefault();
         onEnterKey();
-        return;
-    }
-    else if(key === "Backspace"){
-        event.preventDefault();
-        onBackKey(currentCell);
         return;
     }
     else if(key === "ArrowDown"){
@@ -388,33 +442,39 @@ function onKeydown(event, key){
         onArrowLeftKey();
         return;
     }
-        
-        
-
+    else if(key === "Backspace"){
+        event.preventDefault();
+        onBackKey(currentCell);
+        return;
+    }
+    
     if (!/^[a-zA-Z]$/.test(key)) return;
     
-    const cellText = currentCell.lastElementChild; // últim element perque si té nPista és l'1, i si no el 0
-    cellText.innerText = key.toUpperCase(); // mostrem la lletra a la cell actual
+    // Assignem la lletra a currentCell
+    // lastElementChild perque si té nPista és l'1, i si no el 0
+    const letter = key.toUpperCase();
+    const x = Number(currentCell.dataset.x);
+    const y = Number(currentCell.dataset.y);
+    currentCell.lastElementChild.innerText = letter; 
+    lsUpdateGrid(letter, x, y);
 
     // mou la selecció a la següent cell
     let nextCell;
     if(currentDir === "across")
     {
-        const nextX = Number(currentCell.dataset.x) + 1;
-        nextCell = document.querySelector(`.cell[data-x="${nextX}"][data-y="${currentCell.dataset.y}"]:not(.cellBlack)`)
+        const nextX = x + 1;
+        nextCell = document.querySelector(`.cell[data-x="${nextX}"][data-y="${y}"]:not(.cellBlack)`)
         
     } else { // down
-        const nextY = Number(currentCell.dataset.y) + 1;
-        nextCell = document.querySelector(`.cell[data-x="${currentCell.dataset.x}"][data-y="${nextY}"]:not(.cellBlack)`)
+        const nextY = y + 1;
+        nextCell = document.querySelector(`.cell[data-x="${x}"][data-y="${nextY}"]:not(.cellBlack)`)
     }
 
 
     if(nextCell){
         currentCell = nextCell;
-        // nextCell.focus();
         hiddenInput.focus();
     } else { // final de paraula
-        // currentCell = cell;// ara cell no existeix
         onEnterKey()
     }
 
@@ -423,9 +483,9 @@ function onKeydown(event, key){
     // comprovar si ha escrit totes les lletres
     const allCells = Array.from(document.querySelectorAll(`.cell`));
     const cellsJugables = allCells.filter((c) => !c.classList.contains("cellBlack"));
-    const isFinished = cellsJugables.every(c => c.lastElementChild?.innerText.trim() !== "");
+    const isGridCompleted = cellsJugables.every(c => c.lastElementChild?.innerText.trim() !== "");
     
-    if(isFinished){
+    if(isGridCompleted){
         isOk().then(ok => {
             if(!ok){
                 // Fi de joc amb errors
@@ -433,12 +493,20 @@ function onKeydown(event, key){
                 modalErrors.show();
             } else {
                 // Fi de joc correcte
-                finishCorrect();            
+                finishCorrect();                            
             }
         })
     }
 }
+
 function finishCorrect(){
+    mostrarModalFi();
+
+    // block grid
+    lsUpdateFinished();    
+}
+
+function mostrarModalFi(){
     stopTimer();
     var modalFi = new bootstrap.Modal(document.getElementById('modalFi'))
     modalFi.show();
@@ -558,7 +626,7 @@ function onBackKey(cell){
     }
 
     cell.lastElementChild.innerText = "";
-
+    lsUpdateGrid("", x, y);
 
     if (backCell && !backCell.classList.contains("cellBlack")) {
         currentCell = backCell;
@@ -730,22 +798,30 @@ async function solvePuzzle(){
     if(currentId == undefined)
         return;
 
-    const res = await fetch(`/api/crossword/${currentId}/solve?` + new URLSearchParams({ type: currentTipus}));
-    const solution = await res.json();
-    for (let j = 0; j < height; j++) {
-        for(let i=0; i<width; i++){
-            const cell = document.querySelector(`.cell[data-x="${i}"][data-y="${j}"]`);
-            const sol = solution[j][i];
-            if(sol !== "#")
-                cell.lastElementChild.innerText = sol;
-        }
-    }
+    await getSolution();
+    
     var modalResoldre = document.getElementById('modalResoldre');
     var modal = bootstrap.Modal.getInstance(modalResoldre)
     modal.hide();
 
     // finished
     finishCorrect();
+}
+
+// crida a solvePuzzle
+async function getSolution(){
+    const res = await fetch(`/api/crossword/${currentId}/solve?` + new URLSearchParams({ type: currentTipus}));
+    const solution = await res.json();
+    for (let j = 0; j < height; j++) {
+        for(let i=0; i<width; i++){
+            const cell = document.querySelector(`.cell[data-x="${i}"][data-y="${j}"]`);
+            const sol = solution[j][i];
+            if(sol !== "#"){
+                cell.lastElementChild.innerText = sol;
+                lsUpdateGrid(sol, i, j)
+            }
+        }
+    }
 }
 
 // mostra la lletra seleccionada
@@ -867,4 +943,50 @@ function mesEncreuatsClick(){
     var modal = bootstrap.Modal.getInstance(modalFi)
     modal.hide();
     carregarPuzzles(currentTipus)
+}
+
+// localStorage
+function lsIsFinished(tipus, id){
+    const progress = JSON.parse(localStorage.getItem("progress"));
+    if(progress === null || progress[tipus][id] === undefined)
+        return undefined;
+    else return progress[tipus][id].finished;
+}
+
+function lsInitProgress(tipus){
+    let progress = JSON.parse(localStorage.getItem('progress')) || {minis: {}, maxis: {}};
+    progress[tipus] = progress[tipus] || {};  // inicialitza progress[minis] o progress[maxis] si no existeixen
+    localStorage.setItem('progress', JSON.stringify(progress))
+}
+
+function lsInitProgressPuzzle(puzzle){
+    let progress = JSON.parse(localStorage.getItem('progress')) || {minis: {}, maxis: {}};
+    progress[currentTipus] = progress[currentTipus] || {};  // inicialitza progress[minis] o progress[maxis] si no existeixen
+    if(!progress[currentTipus][currentId]){
+        const emptyGrid = puzzle.map(row => row.map(c => c === "#" ? "#" : ""));
+        progress[currentTipus][currentId] = { finished: false, grid: emptyGrid, timer: "00:00"}; // inicialitza el puzzle a false si no existeix
+    }
+    localStorage.setItem('progress', JSON.stringify(progress))
+    return progress[currentTipus][currentId].finished; // return finished
+}
+
+function lsUpdateGrid(letter, x, y){
+    let progress = JSON.parse(localStorage.getItem("progress"));
+    progress[currentTipus][currentId].grid[y][x] = letter;
+    progress[currentTipus][currentId].timer = document.querySelector("#timer").innerText;
+    localStorage.setItem("progress", JSON.stringify(progress))
+}
+
+function lsGetPercentatge(tipus, id){
+    const progress = JSON.parse(localStorage.getItem("progress"));
+    if(progress === null || progress[tipus][id] === undefined)
+        return;
+
+    const grid = progress[tipus][id].grid;
+    const total = grid.reduce( (acc, row) => acc + row.filter(cell => cell != "#").length, 0);
+    const plenes = grid.reduce( (acc, row) => acc + row.filter(cell => cell != "#" && cell != "").length, 0);
+    const percentatge = Math.round((plenes * 100) / total);
+        console.log(total, plenes, percentatge)
+
+    return percentatge;
 }
