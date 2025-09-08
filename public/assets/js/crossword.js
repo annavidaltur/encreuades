@@ -39,8 +39,16 @@ document.body.appendChild(hiddenInput);
 
 //timer
 var func;
-function startTimer(){
-    var start = Date.now();
+function startTimer(inici){
+    let start;
+    if(inici){
+        const min = Number(inici.split(":")[0])
+        const sec = Number(inici.split(":")[1])
+        const elapsedMS = min*60000 + sec*1000;
+        start = Date.now() - elapsedMS;
+    } else {
+        start = Date.now();
+    }
     func = setInterval(function() {
         var delta = Date.now() - start; // milliseconds elapsed since start
         var minutes = Math.floor(delta / 60000);
@@ -50,9 +58,9 @@ function startTimer(){
             minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
         document.getElementById("timer").innerHTML = text;
         
-        // let progress = JSON.parse(localStorage.getItem("progress"));
-        // progress[currentTipus][currentId].timer = text;
-        // localStorage.setItem("progress", JSON.stringify(progress));    
+        let progress = JSON.parse(localStorage.getItem("progress"));
+        progress[currentTipus][currentId].timer = text;
+        localStorage.setItem("progress", JSON.stringify(progress));    
     }, 1000); // update about every second
 }
 function stopTimer() {
@@ -73,6 +81,7 @@ async function carregarPuzzles(tipus) {
     const select = document.getElementById("puzzleSelect");
     select.innerHTML = "";
     lsInitProgress(tipus); // inicialitzar localstorage
+    stopTimer();
     puzzles.forEach(puzzle => {
         const puzDiv = document.createElement("div");
         puzDiv.classList.add("puzDiv");
@@ -163,6 +172,7 @@ async function clickPuzzle(id) {
         return;
     document.getElementById("puzzleSelect").style.display = "none";
     document.getElementById("board").style.display = "block";
+    document.querySelector("#timer").innerText = ""; // netejar estat
 
     currentId = id;
 
@@ -171,15 +181,18 @@ async function clickPuzzle(id) {
     buildPuzzle(data);
 
     // storage
-    if(lsInitProgressPuzzle(data.puzzle)){
+    const progress = lsInitProgressPuzzle(data.puzzle);
+    const finished = progress[0];
+    const timer = progress[1];
+    if(finished){
         mostrarModalFi(); // modal fi de joc
         getSolution(); // omplir el grid amb la solució
         return; // evitar iniciar el timer
     }
 
     // Timer
-    clearTimer(); // netejar possible estat anterior
-    startTimer();
+    document.querySelector("#timer").innerText = ""; // netejar estat
+    startTimer(timer);
 }
 
 function clearTimer(){
@@ -502,8 +515,10 @@ function onKeydown(event, key){
 function finishCorrect(){
     mostrarModalFi();
 
-    // block grid
-    lsUpdateFinished();    
+    // update finished
+    let progress = JSON.parse(localStorage.getItem("progress"));
+    progress[currentTipus][currentId].finished = true;
+    localStorage.setItem("progress", JSON.stringify(progress))   
 }
 
 function mostrarModalFi(){
@@ -512,8 +527,10 @@ function mostrarModalFi(){
     modalFi.show();
 
     // passem el timer al modal
-    const interval = document.querySelector("#timer");
-    document.querySelector("#intervalFi").innerText = interval.innerText;
+    const timerls = JSON.parse(localStorage.getItem('progress'))[currentTipus][currentId].timer;
+    // const interval = document.querySelector("#timer");
+    // document.querySelector("#intervalFi").innerText = timer ? timer : interval.innerText;
+    document.querySelector("#intervalFi").innerText = timerls;    
 }
 
 function onEnterKey() {
@@ -967,13 +984,15 @@ function lsInitProgressPuzzle(puzzle){
         progress[currentTipus][currentId] = { finished: false, grid: emptyGrid, timer: "00:00"}; // inicialitza el puzzle a false si no existeix
     }
     localStorage.setItem('progress', JSON.stringify(progress))
-    return progress[currentTipus][currentId].finished; // return finished
+    return [progress[currentTipus][currentId].finished, progress[currentTipus][currentId].timer]; // return finished
 }
 
 function lsUpdateGrid(letter, x, y){
     let progress = JSON.parse(localStorage.getItem("progress"));
     progress[currentTipus][currentId].grid[y][x] = letter;
-    progress[currentTipus][currentId].timer = document.querySelector("#timer").innerText;
+    const timer = document.querySelector("#timer").innerText;    
+    if(timer != "")
+        progress[currentTipus][currentId].timer = document.querySelector("#timer").innerText;
     localStorage.setItem("progress", JSON.stringify(progress))
 }
 
