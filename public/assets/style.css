@@ -43,6 +43,7 @@ html, body {
   transition: all 0.2 ease-in-out;
 }
 
+.btn-crossword.active,
 .btn-crossword:hover{
   background-color: #dc8add;
   border-color: #450359;
@@ -128,6 +129,7 @@ g:hover rect.letter{
   align-items: center;
   cursor: pointer;
   background-color: #fff;
+  min-height: 104px;
 }
 .puzDiv:hover{
   background-color: #e6e6e6;
@@ -388,4 +390,34 @@ hr{
   #teclat{
     display: none !important;
   }
+}
+
+/* paginació */
+/* .pagination-container {
+  display: flex;
+  align-items: end;
+  justify-content: end;
+} */
+.pagination-number,
+.pagination-button{
+  font-size: 1.1rem;
+  background-color: #fff;
+  color: #450359;
+  border: 1px solid #450359;
+  margin: 0.1rem 0.1rem;
+  cursor: pointer;
+  height: 2.5rem;
+  width: 2.5rem;
+  border-radius: none;
+}
+
+.pagination-number:hover,
+.pagination-button:not(.disabled):hover {
+  background: #dc8add;
+  color: #450359;
+}
+
+.pagination-number.active {
+  color: #450359;
+  background: #dc8add;
 }

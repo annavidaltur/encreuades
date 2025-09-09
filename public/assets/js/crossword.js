@@ -44,26 +44,64 @@ function stopTimer() {
     clearInterval(func);
 }
 
+// paginació
+const itemsPerPage = 5;
+let currentPage = 1;
+let allPuzzles = [];
+
 carregarPuzzles('minis');
 // clickPuzzle("20250818")
 // clickPuzzle("maxis", "20250826") // 15x15
 
 // Crea la llista de puzzles
 async function carregarPuzzles(tipus) {
-    document.getElementById("puzzleSelect").style.display = "block"
+    const select = document.getElementById("puzzleSelect");
+    select.innerHTML = ""; // netejar estar anterior
+
+    // mostrar la llista i paginació i amagar el grid
+    select.style.display = "block"
+    document.getElementById("pagination-container").classList.remove("d-none");
+    document.getElementById("pagination-container").classList.add("d-flex");
 	document.getElementById("board").style.display = "none"
+
+    // actualitzar currentTipus
     currentTipus = tipus;
+    currentPage = 1; // reiniciar la paginació
+
+    // botons active
+    const btnMinis = document.getElementById("btnXicotets");
+    const btnGrans = document.getElementById("btnGrans");
+    btnMinis.classList.remove("active");
+    btnGrans.classList.remove("active");
+    if(tipus === "minis")
+        btnMinis.classList.add("active");
+    else btnGrans.classList.add("active");
+
+    // crida per obtenir la llista de puzzles
     const res = await fetch(`/api/crosswords?` + new URLSearchParams({ type: tipus}));
-    const puzzles = await res.json();
+    allPuzzles = await res.json();
+    
+    
+    lsInitProgress(tipus); // inicialitzar localstorage
+    stopTimer(); // parar timer
+    hideTeclat(); // amagar teclat
+    const bannerPista = document.querySelector("#banner-clue-text"); // netejar estar banner pista
+    bannerPista.innerText = "";
+
+    renderPage();
+}
+
+function renderPage(){
     const select = document.getElementById("puzzleSelect");
     select.innerHTML = "";
-    lsInitProgress(tipus); // inicialitzar localstorage
-    stopTimer();
-    hideTeclat();
-    const bannerPista = document.querySelector("#banner-clue-text");
-    console.log(bannerPista)
-    bannerPista.innerText = "";
-    puzzles.forEach(puzzle => {
+
+    // paginació
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const paginatedItems = allPuzzles.slice(start,end);
+
+    // lista elements
+    paginatedItems.forEach(puzzle => {
         const puzDiv = document.createElement("div");
         puzDiv.classList.add("puzDiv");
 
@@ -103,13 +141,13 @@ async function carregarPuzzles(tipus) {
         const right2 = document.createElement("div");
         right2.classList.add("puzRightLabel");
 
-        const finished = lsIsFinished(tipus, puzzle.id);
+        const finished = lsIsFinished(currentTipus, puzzle.id);
         const perLabel = document.createElement("div");
         const finLabel = document.createElement("div");
         if(finished === undefined){
             finLabel.textContent = "";
         } else {
-            const percentatge = lsGetPercentatge(tipus, puzzle.id);
+            const percentatge = lsGetPercentatge(currentTipus, puzzle.id);
             perLabel.classList.add("progress-ring")
             perLabel.classList.add(percentatge > 50 ? "guai" : "regu");
 
@@ -145,14 +183,19 @@ async function carregarPuzzles(tipus) {
     // netejar grid
     const grid = document.querySelector("#grid");
     grid.innerHTML = "";
+
+    // paginació
+    renderPagination(allPuzzles.length)
 }
 
 // Event onClick element llista puzzle
 async function clickPuzzle(id) {
     if (id == undefined)
         return;
-    document.getElementById("puzzleSelect").style.display = "none";
-    document.getElementById("board").style.display = "block";
+    document.getElementById("puzzleSelect").style.display = "none"; // amagar llista
+    document.getElementById("pagination-container").classList.remove("d-flex");
+    document.getElementById("pagination-container").classList.add("d-none"); // amagar paginació
+    document.getElementById("board").style.display = "block"; // mostrar grid
     document.querySelector("#timer").innerText = ""; // netejar estat
     
     const bannerPista = document.querySelector("#bannerClue");
@@ -1081,3 +1124,41 @@ function hideTeclat(){
     keyboard.classList.add("d-none");
 }
 
+// paginació
+function renderPagination(totalItems) {
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const paginationNumbers = document.getElementById("pagination-numbers");
+    paginationNumbers.innerHTML = "";
+
+    for (let i = 1; i <= totalPages; i++) {
+        const button = document.createElement("button");
+        button.innerText = i;
+        button.classList.add("pagination-number");
+        if (i === currentPage) button.classList.add("active");
+
+        button.addEventListener("click", () => {
+            currentPage = i;
+            renderPage();
+        });
+
+        paginationNumbers.appendChild(button);
+    }
+
+    document.getElementById("prev-button").disabled = currentPage === 1;
+    document.getElementById("next-button").disabled = currentPage === totalPages;
+}
+
+document.getElementById("prev-button").addEventListener("click", () => {
+    if (currentPage > 1) {
+        currentPage--;
+        renderPage();
+    }
+});
+
+document.getElementById("next-button").addEventListener("click", () => {
+    const totalPages = Math.ceil(allPuzzles.length / itemsPerPage);
+    if (currentPage < totalPages) {
+        currentPage++;
+        renderPage();
+    }
+});

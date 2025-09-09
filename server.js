@@ -38,7 +38,14 @@ app.get("/api/crosswords", (req, res) => {
                 author: content.author
             }
         })
-        res.json(puzzles);
+        const ordered = puzzles.sort((a,b) => {
+          const nameA = a.id;
+          const nameB = b.id;
+          if(nameA > nameB)
+            return -1;
+          else return 1;
+        });
+        res.json(ordered);
     } catch (err) {
         console.error("Error llegint els creuats: ", err)
         res.status(500).json({error: "No s'han pogut carregar els creuats"});
