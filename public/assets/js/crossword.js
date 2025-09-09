@@ -14,29 +14,6 @@ function checkDevice() {
   return check;
 };
 
-// agefir un únic input
-const hiddenInput = document.createElement("input");
-hiddenInput.type = "text";
-hiddenInput.maxLength = 1;
-hiddenInput.style.position = "absolute";
-hiddenInput.style.width = "1px";
-hiddenInput.style.height = "1px";
-hiddenInput.style.opacity = "0.01";
-hiddenInput.style.zIndex = "1000";
-hiddenInput.style.pointerEvents = "auto";
-hiddenInput.autocapitalize = "characters";
-hiddenInput.id = "hiddenInput"
-if(isMobile){
-    hiddenInput.addEventListener("input", (e) => onInputMobile(e));
-    hiddenInput.addEventListener("keydown", (e) => {
-        // només intercepta tecles de control
-        if (["Enter","Backspace","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)) {
-        onKeydown(e, e.key);
-        }
-    });
-} else hiddenInput.addEventListener("keydown", (e) => onKeydownDesktop(e));
-document.body.appendChild(hiddenInput);
-
 //timer
 var func;
 function startTimer(inici){
@@ -82,6 +59,10 @@ async function carregarPuzzles(tipus) {
     select.innerHTML = "";
     lsInitProgress(tipus); // inicialitzar localstorage
     stopTimer();
+    hideTeclat();
+    const bannerPista = document.querySelector("#banner-clue-text");
+    console.log(bannerPista)
+    bannerPista.innerText = "";
     puzzles.forEach(puzzle => {
         const puzDiv = document.createElement("div");
         puzDiv.classList.add("puzDiv");
@@ -173,6 +154,15 @@ async function clickPuzzle(id) {
     document.getElementById("puzzleSelect").style.display = "none";
     document.getElementById("board").style.display = "block";
     document.querySelector("#timer").innerText = ""; // netejar estat
+    
+    const bannerPista = document.querySelector("#bannerClue");
+    if(isMobile){
+        showTeclat();
+        bannerPista.style.position = "fixed";
+    } else {
+        bannerPista.style.position = "relative";
+    }   
+        
 
     currentId = id;
 
@@ -256,7 +246,7 @@ function buildPuzzle(data) {
 
             // events
             cell.addEventListener("click", () => onClickCell(cell));
-            // cell.addEventListener("keydown", (e) => onKeydownDesktop(e));
+            cell.addEventListener("keydown", (e) => onKeydownDesktop(e));
             cell.tabIndex = 0; // Per a que s'active el kwydown pq un div no és focusable per defecte, i keydown sols es dispara quan l'element té el focus
 
             // afegir número de paraula
@@ -335,12 +325,8 @@ function onClickCell(cell){
         else currentDir = 'across';
     } else {
         currentCell = cell;
-        const rect = currentCell.getBoundingClientRect();
-        hiddenInput.style.left = rect.left + "px";
-        hiddenInput.style.top = rect.top + "px";
         
     }
-    hiddenInput.focus();
     updateSelection();
 }
 
@@ -418,14 +404,6 @@ function onKeydownDesktop(event){
     onKeydown(event, key);    
 }
 
-function onInputMobile(event){
-    if(!currentCell) return;
-
-    const key = event.target.value.slice(-1).toUpperCase();
-    event.target.value = "";
-
-    onKeydown(event, key)    
-}
 
 function onKeydown(event, key){
     if(lsIsFinished(currentTipus, currentId)) return; // permitim navegar però no modificar el grid
@@ -457,11 +435,11 @@ function onKeydown(event, key){
     }
     else if(key === "Backspace"){
         event.preventDefault();
-        onBackKey(currentCell);
+        onBackKey();
         return;
     }
     
-    if (!/^[a-zA-Z]$/.test(key)) return;
+    if (!/^[a-zA-ZçÇ]$/.test(key)) return;
     
     // Assignem la lletra a currentCell
     // lastElementChild perque si té nPista és l'1, i si no el 0
@@ -486,7 +464,6 @@ function onKeydown(event, key){
 
     if(nextCell){
         currentCell = nextCell;
-        hiddenInput.focus();
     } else { // final de paraula
         onEnterKey()
     }
@@ -523,13 +500,12 @@ function finishCorrect(){
 
 function mostrarModalFi(){
     stopTimer();
+    hideTeclat();
     var modalFi = new bootstrap.Modal(document.getElementById('modalFi'))
     modalFi.show();
 
     // passem el timer al modal
     const timerls = JSON.parse(localStorage.getItem('progress'))[currentTipus][currentId].timer;
-    // const interval = document.querySelector("#timer");
-    // document.querySelector("#intervalFi").innerText = timer ? timer : interval.innerText;
     document.querySelector("#intervalFi").innerText = timerls;    
 }
 
@@ -619,17 +595,77 @@ function onEnterKey() {
 
     if (nextCell) {
         currentCell = nextCell;
-        // currentCell.focus();
-        hiddenInput.focus()
+        currentCell.focus();
+        // hiddenInput.focus()
     }
     updateSelection();
 }
 
-function onBackKey(cell){
-    if (!cell) return;
+function onEnterBackKey() {
+    if (!currentCell) return;
 
-    const x = Number(cell.dataset.x);
-    const y = Number(cell.dataset.y);
+    // trobar index pista actual
+    const allCluesDir = document.querySelectorAll(`.clueDiv[data-dir="${currentDir}"]`);
+    const clueActive = document.querySelector('.clueDiv.active');
+    const index = Array.prototype.indexOf.call(allCluesDir, clueActive)
+    if(index <= 0)
+        return;
+
+    // trobar pista prèvia
+    const prevClueText = allCluesDir[index-1].firstChild.innerText;
+    const spans = document.querySelectorAll('.nPista');
+    const prevClue = Array.from(spans).filter(sp => sp.innerText == prevClueText)[0];
+    if(!prevClue) 
+        return;
+
+    // trobar primera cell lliure de la paraula prèvia
+    const prevWordX = prevClue.parentNode.dataset.x;
+    const prevWordY = prevClue.parentNode.dataset.y;
+    let nextCell;
+
+    if(currentDir == "across"){
+        let nextX = prevWordX;
+        while (true) {
+            const candidate = document.querySelector(`.cell[data-x="${nextX}"][data-y="${prevWordY}"]`);
+            if (!candidate){
+                break; // no hi ha més files
+            }
+            if (!candidate.classList.contains("cellBlack") && !candidate.lastElementChild.innerText != "") {
+                nextCell = candidate;
+                break;
+            }
+            nextX++;
+        }
+    } else {
+        let nextY = prevWordY;
+        while (true) {
+            const candidate = document.querySelector(`.cell[data-x="${prevWordX}"][data-y="${nextY}"]`);
+            if (!candidate){
+                break; // no hi ha més files
+            }
+            if (!candidate.classList.contains("cellBlack") && !candidate.lastElementChild.innerText != "") {
+                nextCell = candidate;
+                break;
+            }
+            nextY++;
+        }
+    }
+    
+    if(nextCell){
+        currentCell = nextCell;
+    } else {
+        // totes les cells estan escrites
+        currentCell = document.querySelector(`.cell[data-x="${prevWordX}"][data-y="${prevWordY}"]`);
+    }
+    currentCell.focus();
+    updateSelection();
+}
+
+function onBackKey(){
+    if (!currentCell) return;
+
+    const x = Number(currentCell.dataset.x);
+    const y = Number(currentCell.dataset.y);
 
     let backCell;
     if (currentDir === 'across') {
@@ -642,7 +678,7 @@ function onBackKey(cell){
         backCell = document.querySelector(`.cell[data-x="${x}"][data-y="${backY}"]`);
     }
 
-    cell.lastElementChild.innerText = "";
+    currentCell.lastElementChild.innerText = "";
     lsUpdateGrid("", x, y);
 
     if (backCell && !backCell.classList.contains("cellBlack")) {
@@ -798,7 +834,6 @@ function isOk(){
                     continue;
                 else {
                     const res = result[j][i];
-                    console.log('res', res, j, i)
                     if(res == "incorrect")
                     {
                         return false;
@@ -871,9 +906,9 @@ function highlightClue(){
         if (!/Mobi|Android/i.test(navigator.userAgent)) {
             clue.scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'nearest'})
         }
-        const bannerClue = document.querySelector('#bannerClue');
+        const bannerClue = document.querySelector('#banner-clue-text');
         const dir = currentDir === "across" ? "H" : "V";
-        bannerClue.innerHTML = `<span><b>${clue.firstChild.innerText} ${dir}</b> ${clue.lastChild.innerText.trim()}</span>`;
+        bannerClue.innerHTML = `<b>${clue.firstChild.innerText} ${dir}</b> ${clue.lastChild.innerText.trim()}`;
     }
 }
 
@@ -1005,7 +1040,44 @@ function lsGetPercentatge(tipus, id){
     const total = grid.reduce( (acc, row) => acc + row.filter(cell => cell != "#").length, 0);
     const plenes = grid.reduce( (acc, row) => acc + row.filter(cell => cell != "#" && cell != "").length, 0);
     const percentatge = Math.round((plenes * 100) / total);
-        console.log(total, plenes, percentatge)
 
     return percentatge;
 }
+
+
+// gestionar teclat
+const keyboard = document.querySelector("#teclat");
+function showTeclat(){
+    keyboard.classList.remove("d-none"); // mostrar teclat
+    keyboard.addEventListener('click', (e) => {
+        if(!currentCell) return;
+        const key = e.target.innerText;
+        onKeydown(e, key);
+    });
+
+    // moure barra pista i mostrar fletxes
+    const bannerPista = document.querySelector("#bannerClue");
+    const teclatHeight = teclat.offsetHeight;    //resize de l'altura del banner
+    bannerPista.style.bottom = teclatHeight + "px";
+
+    // afegir arrows al banner de pistes
+    if(bannerPista.children.length >= 2)
+        return;
+
+    const arrowPrev = document.createElement("button");
+    arrowPrev.classList.add("arrow-banner")
+    arrowPrev.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#333333" class="bi bi-caret-left-fill" viewBox="0 0 16 16"><path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/></svg>`;
+    arrowPrev.addEventListener("click", () => onEnterBackKey())
+    bannerPista.insertBefore(arrowPrev, bannerPista.firstChild);
+
+    const arrowNext = document.createElement("button");
+    arrowNext.classList.add("arrow-banner")
+    arrowNext.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#333333" class="bi bi-caret-right-fill" viewBox="0 0 16 16"><path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/></svg>`;
+    arrowNext.addEventListener("click", () => onEnterKey())
+    bannerPista.appendChild(arrowNext);
+}
+
+function hideTeclat(){
+    keyboard.classList.add("d-none");
+}
+

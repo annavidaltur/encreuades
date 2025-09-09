@@ -98,6 +98,7 @@
 
 	<!-- Grid -->
 	<div id="board" class="container-fluid px-0 mx-0">
+		<!-- Navbar puzzle -->
 	 	<nav class="navbar navbar-puzzle navbar-light bg-white border-bottom border-top">
   			<div class="mb-1 mb-sm-0">
 				<button id="btnEnrere" class="btn btn-crossword-outline d-inline-flex align-items-center align-middle pr-3 py-2">
@@ -117,15 +118,19 @@
 				<button class="btn btn-crossword-outline px-3 py-2 ml-2" data-bs-toggle="modal" data-bs-target="#modalResoldre">Resoldre</button>
 			</div>
   		</nav>
-		<nav id="bannerClue" class="navbar barra-pista navbar-light border-bottom border-top">
+		<nav id="bannerClue" class="navbar barra-pista navbar-light border-bottom border-top px-1 px-md-3">
+			<span id="banner-clue-text"></span>
 		</nav>
 		
 		
 		<div class="row px-0 mx-0">
+			<!-- grid -->
 			<div class="col-12 col-md-6 col-lg-3 mt-2">
 				<div id="grid"></div>
 				<div id="title"></div>
 			</div>
+
+			<!-- llista de pistes -->
 			<div class="col-6 col-md-3 col-lg-3 mt-2">
 				<div><b>HORITZONTALS</b></div>
 				<hr>
@@ -143,6 +148,46 @@
 		</div>
   	</div>
 
+	<!-- Teclat -->
+	<div id="teclat" class="teclat d-block d-sm-none">
+		<div class="teclat-row">
+			<button>Q</button>
+			<button>W</button>
+			<button>E</button>
+			<button>R</button>
+			<button>T</button>
+			<button>Y</button>
+			<button>U</button>
+			<button>I</button>
+			<button>O</button>
+			<button>P</button>
+		</div>
+		<div class="teclat-row">
+			<button>A</button>
+			<button>S</button>
+			<button>D</button>
+			<button>F</button>
+			<button>G</button>
+			<button>H</button>
+			<button>J</button>
+			<button>K</button>
+			<button>L</button>
+			<button>Ç</button>
+		</div>
+		<div class="teclat-row">
+			<button>Z</button>
+			<button>X</button>
+			<button>C</button>
+			<button>V</button>
+			<button>B</button>
+			<button>N</button>
+			<button>M</button>
+			<button class="px-4" onclick="onBackKey()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-backspace" viewBox="0 0 16 16">
+  <path d="M5.83 5.146a.5.5 0 0 0 0 .708L7.975 8l-2.147 2.146a.5.5 0 0 0 .707.708l2.147-2.147 2.146 2.147a.5.5 0 0 0 .707-.708L9.39 8l2.146-2.146a.5.5 0 0 0-.707-.708L8.683 7.293 6.536 5.146a.5.5 0 0 0-.707 0z"/>
+  <path d="M13.683 1a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-7.08a2 2 0 0 1-1.519-.698L.241 8.65a1 1 0 0 1 0-1.302L5.084 1.7A2 2 0 0 1 6.603 1zm-7.08 1a1 1 0 0 0-.76.35L1 8l4.844 5.65a1 1 0 0 0 .759.35h7.08a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z"/>
+</svg></button>
+		</div>
+	</div>
 </div>
 
 <!-- Modal resoldre -->
