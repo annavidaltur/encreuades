@@ -277,10 +277,6 @@ g:hover rect.letter{
 .incorrect{color:red;}
 
 /* NAVBAR PUZZLE */
-.navbar-puzzle{
-  padding-left: 20px;
-  padding-right: 20px;
-}
 
 .barra-pista{
   background-color: #e7e7e7;
