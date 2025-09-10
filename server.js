@@ -1,7 +1,9 @@
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
-import fs from "fs";
+import dotenv from "dotenv";
+dotenv.config({override: true});
+import { S3Client, ListObjectsV2Command, GetObjectCommand, GetBucketAclCommand } from "@aws-sdk/client-s3";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -13,68 +15,99 @@ app.use(express.static(path.join(__dirname, "public")));
 //middleware per parsejar json
 app.use(express.json());
 
+// R2 Client
+const client = new S3Client({
+      region: "auto",
+      endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+      credentials: {
+        accessKeyId: process.env.R2_ACCESS_KEY_ID,
+        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY
+      }
+    });
+
 // endpoint que torna la llista de crosswords
-app.get("/api/crosswords", (req, res) => {
-    const type = req.query.type;
-    const dir = path.join(__dirname, type);
-    try{
-        const dToday = new Date()
-        const strToday = dToday.toISOString().slice(0,10).replace(/-/g, "")
+app.get("/api/crosswords", async (req, res) => {
+    try {
+      const type = req.query.type;
+      const dToday = new Date()
+      const strToday = dToday.toISOString().slice(0,10).replace(/-/g, "")
+      let puzzlesList = [];
 
-        // filtrem .ipuz + els que siguen <= que el dia actual
-        const files = fs.readdirSync(dir)
-            .filter(f => f.endsWith(".ipuz") 
-                        && f.replace(".ipuz", "") <= strToday);
+      const command = new ListObjectsV2Command({
+        Bucket: process.env.R2_BUCKET,
+        Prefix: type + '/'
+      });
+      const listResponse = await client.send(command);
 
-        const puzzles = files.map(f => {
-            const fName = f.slice(0,f.length - 5) // llevem el .ipuz
-            const filePath = path.join(dir, f);
-            const content = JSON.parse(fs.readFileSync(filePath, "utf8"))
+      if(listResponse.Contents){
+        for(const obj of listResponse.Contents){
+          const id = obj.Key.split("/")[1].slice(0,8);
+          if(id > strToday) // ignorem els posteriors a la data actual. la comparació és com a string!
+            continue;
+          
+          const content = await getFileContent(obj.Key);
+          const json = JSON.parse(content);
+          
+          var puz = new Object();
+          puz.id = id;
+          puz.date = `${id.slice(0,4)}-${id.slice(4,6)}-${id.slice(6,8)}`; // 2025-08-10
+          puz.title = json.title;
+          puz.author = json.author;
 
-            return {
-                id: fName,
-                date: `${fName.slice(0,4)}-${fName.slice(4,6)}-${fName.slice(6,8)}`, // 2025-08-10
-                title: content.title,
-                author: content.author
-            }
-        })
-        const ordered = puzzles.sort((a,b) => {
+          puzzlesList.push(puz)
+        }
+      }
+
+      const ordered = puzzlesList.sort((a,b) => {
           const nameA = a.id;
           const nameB = b.id;
           if(nameA > nameB)
             return -1;
           else return 1;
         });
-        res.json(ordered);
+        res.json(ordered);    
     } catch (err) {
         console.error("Error llegint els creuats: ", err)
         res.status(500).json({error: "No s'han pogut carregar els creuats"});
     }
 });
 
+async function getFileContent(key){
+  const command = new GetObjectCommand({
+    Bucket: process.env.R2_BUCKET,
+    Key: key
+  })
+
+  const response = await client.send(command);
+  const content = await response.Body.transformToString();
+  return content;
+}
+
 // endpoint crossword concret
-app.get("/api/crossword/:id", (req, res) => {
+app.get("/api/crossword/:id", async (req, res) => {
   try {
-    const filePath = path.join(__dirname, req.query.type, `${req.params.id}.ipuz`);
-    const puzzle = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+    var key = req.query.type + "/" + req.params.id + ".ipuz";
+    const content = await getFileContent(key);
+    const puzzle = JSON.parse(content);
     const response = {
       title: puzzle.title,
       author: puzzle.author,
       dimensions: puzzle.dimensions,
       puzzle: puzzle.puzzle,
       clues: puzzle.clues
-    }
-    res.json(response);
+    };
+    res.json(response);    
   } catch (err) {
-    res.status(404).json({ error: "Crossword no trobat" });
+    res.status(404).json({ error: err });
   }
 });
 
 // mostrar solució
-app.get("/api/crossword/:id/solve", (req, res) => {
+app.get("/api/crossword/:id/solve", async (req, res) => {
   try {
-    const filePath = path.join(__dirname, req.query.type, `${req.params.id}.ipuz`);
-    const puzzle = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+    var key = req.query.type + "/" + req.params.id + ".ipuz";
+    const content = await getFileContent(key);
+    const puzzle = JSON.parse(content);
     res.json(puzzle.solution);
   } catch (err) {
     res.status(404).json({ error: "Crossword no trobat" });
@@ -82,10 +115,11 @@ app.get("/api/crossword/:id/solve", (req, res) => {
 });
 
 // mostrar lletra
-app.get("/api/crossword/:id/letter", (req, res) => {
+app.get("/api/crossword/:id/letter", async (req, res) => {
   try {
-    const filePath = path.join(__dirname, req.query.type, `${req.params.id}.ipuz`);
-    const puzzle = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+    var key = req.query.type + "/" + req.params.id + ".ipuz";
+    const content = await getFileContent(key);
+    const puzzle = JSON.parse(content);
     const letter = puzzle.solution[req.query.y][req.query.x];
 
     if(!letter)
@@ -97,10 +131,11 @@ app.get("/api/crossword/:id/letter", (req, res) => {
   }
 });
 // check resultat
-app.post("/api/crossword/:id", (req, res) => {
+app.post("/api/crossword/:id", async (req, res) => {
   try {
-    const filePath = path.join(__dirname, req.query.type, `${req.params.id}.ipuz`);
-    const puzzle = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+    var key = req.query.type + "/" + req.params.id + ".ipuz";
+    const content = await getFileContent(key);
+    const puzzle = JSON.parse(content);
     const solution = puzzle.solution;
     const width = puzzle.dimensions.width;
     const height = puzzle.dimensions.height;
