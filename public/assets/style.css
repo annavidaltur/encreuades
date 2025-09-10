@@ -286,7 +286,7 @@ g:hover rect.letter{
   position: fixed;
   left: 0;
   width: 100%;
-  z-index: 10001;
+  z-index: 1;
 }
 
 .arrow-banner{

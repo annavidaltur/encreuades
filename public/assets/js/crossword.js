@@ -839,9 +839,10 @@ function checkPuzzle(){
                         cell.lastElementChild.classList.add(res)
                         setTimeout(() => {
                             cell.lastElementChild.classList.remove(res);
-                        }, 5000) // borra la class correct/incorrect als 5s
+                        }, 3000) // borra la class correct/incorrect als 3s
                     }
                 }
+                currentCell.focus()
             }
         }
     })
