@@ -3,7 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 dotenv.config({override: true});
-import { S3Client, ListObjectsV2Command, GetObjectCommand, GetBucketAclCommand } from "@aws-sdk/client-s3";
+import { S3Client, ListObjectsV2Command, GetObjectCommand } from "@aws-sdk/client-s3";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -163,3 +163,4 @@ app.post("/api/crossword/:id", async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`Servidor escoltant en http://localhost:${PORT}`));
+export default app;
