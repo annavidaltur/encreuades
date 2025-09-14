@@ -1,2 +1,4 @@
 idees.txt
 node_modules/*
+.env
+.vercel

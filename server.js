@@ -1,16 +1,15 @@
-import express from "express";
-import path from "path";
-import { fileURLToPath } from "url";
+import express from 'express';
+// import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 dotenv.config({override: true});
 import { S3Client, ListObjectsV2Command, GetObjectCommand } from "@aws-sdk/client-s3";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
-const PORT = 3000;
+const PORT = process.env.port || 8080;
 
 // web
-app.use(express.static(path.join(__dirname, "public")));
+// app.use(express.static(path.join(__dirname, "public")));
 
 //middleware per parsejar json
 app.use(express.json());
@@ -163,4 +162,5 @@ app.post("/api/crossword/:id", async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`Servidor escoltant en http://localhost:${PORT}`));
+// module.exports = app;
 // export default app;
