@@ -163,4 +163,4 @@ app.post("/api/crossword/:id", async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`Servidor escoltant en http://localhost:${PORT}`));
-export default app;
+// export default app;
