@@ -544,6 +544,10 @@ function finishCorrect(){
 function mostrarModalFi(){
     stopTimer();
     hideTeclat();
+    //amagar també barra pista
+    const bannerPista = document.querySelector("#bannerClue");
+    bannerPista.style.display = "none";
+
     var modalFi = new bootstrap.Modal(document.getElementById('modalFi'))
     modalFi.show();
 
@@ -1091,13 +1095,14 @@ function lsGetPercentatge(tipus, id){
 
 // gestionar teclat
 const keyboard = document.querySelector("#teclat");
-function showTeclat(){
-    keyboard.classList.remove("d-none"); // mostrar teclat
-    keyboard.addEventListener('click', (e) => {
+keyboard.addEventListener('click', (e) => {
         if(!currentCell) return;
         const key = e.target.innerText;
         onKeydown(e, key);
     });
+function showTeclat(){
+    keyboard.classList.remove("d-none"); // mostrar teclat
+    
 
     // moure barra pista i mostrar fletxes
     const bannerPista = document.querySelector("#bannerClue");
