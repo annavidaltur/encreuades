@@ -194,7 +194,7 @@ g:hover rect.letter{
 .progress-ring.guai{
   background: 
     radial-gradient(closest-side, white 70%, transparent 80% 100%),
-    conic-gradient(#4CFF1F calc(var(--p) * 1%), #c7c7c7 0); 
+    conic-gradient(#BCFF1F calc(var(--p) * 1%), #c7c7c7 0); 
 }
 .progress-ring.regu{
   background: 

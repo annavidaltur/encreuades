@@ -1,15 +1,15 @@
 import express from 'express';
-// import { fileURLToPath } from "url";
+import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 dotenv.config({override: true});
 import { S3Client, ListObjectsV2Command, GetObjectCommand } from "@aws-sdk/client-s3";
 
 // const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
-const PORT = process.env.port || 8080;
+const PORT = process.env.PORT || 8080;
 
 // web
-// app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static("./public"));
 
 //middleware per parsejar json
 app.use(express.json());
@@ -24,13 +24,27 @@ const client = new S3Client({
       }
     });
 
+// cache per evitar cridar a R2
+let cacheMinis = null;
+let cacheMaxis = null;
+let cacheDate = null;
+
 // endpoint que torna la llista de crosswords
 app.get("/api/crosswords", async (req, res) => {
+    const type = req.query.type;
+
+    // Si estan en cache i és el mateix dia, tornem els cachejats
+    const today = new Date().toISOString().slice(0,10);
+    if(type === "minis" && cacheMinis && cacheDate === today){
+      return res.json(cacheMinis);
+    }
+    if(type === "maxis" && cacheMaxis && cacheDate === today){
+      return res.json(cacheMaxis);
+    }
+
     try {
-      const type = req.query.type;
       const dToday = new Date()
       const strToday = dToday.toISOString().slice(0,10).replace(/-/g, "")
-      let puzzlesList = [];
 
       const command = new ListObjectsV2Command({
         Bucket: process.env.R2_BUCKET,
@@ -39,32 +53,33 @@ app.get("/api/crosswords", async (req, res) => {
       const listResponse = await client.send(command);
 
       if(listResponse.Contents){
-        for(const obj of listResponse.Contents){
+        const files = listResponse.Contents.filter(obj => {
           const id = obj.Key.split("/")[1].slice(0,8);
-          if(id > strToday) // ignorem els posteriors a la data actual. la comparació és com a string!
-            continue;
-          
+          return id <= strToday;
+        })
+
+        const promises = files.map(async obj => {
+          const id = obj.Key.split("/")[1].slice(0,8);
           const content = await getFileContent(obj.Key);
           const json = JSON.parse(content);
-          
-          var puz = new Object();
-          puz.id = id;
-          puz.date = `${id.slice(0,4)}-${id.slice(4,6)}-${id.slice(6,8)}`; // 2025-08-10
-          puz.title = json.title;
-          puz.author = json.author;
 
-          puzzlesList.push(puz)
-        }
-      }
-
-      const ordered = puzzlesList.sort((a,b) => {
-          const nameA = a.id;
-          const nameB = b.id;
-          if(nameA > nameB)
-            return -1;
-          else return 1;
+          return{
+            id,
+            date: `${id.slice(0,4)}-${id.slice(4,6)}-${id.slice(6,8)}`, // 2025-08-10,
+            title: json.title,
+            author: json.author
+          };
         });
+
+        const list = await Promise.all(promises);
+        const ordered = list.sort((a,b) => (a.id > b.id ? -1 : 1));
+        if(type === "minis")
+          cacheMinis = ordered;
+        else if(type === "maxis")
+          cacheMaxis = ordered;
+        cacheDate = today;
         res.json(ordered);    
+      }
     } catch (err) {
         console.error("Error llegint els creuats: ", err)
         res.status(500).json({error: "No s'han pogut carregar els creuats"});
