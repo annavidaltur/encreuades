@@ -226,6 +226,19 @@ async function clickPuzzle(id) {
     // Timer
     document.querySelector("#timer").innerText = ""; // netejar estat
     startTimer(timer);
+
+    // set current cell
+    for(let i=0; i < width; i++){
+        const cell = document.querySelector(`.cell[data-x="${i}"][data-y="0"]`);
+        console.log(cell)
+        if(!cell.classList.contains("cellBlack"))
+        {
+            currentCell = cell;
+            currentCell.focus();
+            updateSelection();
+            break;
+        }
+    }
 }
 
 function clearTimer(){
@@ -1018,21 +1031,21 @@ function clueClick(n, dir){
 // compartir resultat
 const shareOnTwitter = () => {
     const temps = document.querySelector("#timer").innerText;
-    const text = `He resolt l'encreuat ${currentTitle} en ${temps}. Intenta-ho tu també! https://lalala.com`;
+    const text = `He resolt l'encreuat ${currentTitle} en ${temps} de @encreuada. Intenta-ho tu també! https://www.encreuada.cat`;
     const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
 };
 
 const shareOnFacebook = () => {
     const temps = document.querySelector("#timer").innerText;
-    const text = `He resolt l'encreuat ${currentTitle} en ${temps}. Intenta-ho tu també! https://lalala.com`;
+    const text = `He resolt l'encreuat ${currentTitle} en ${temps} de @encreuada. Intenta-ho tu també! https://www.encreuada.cat`;
     const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}&quote=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
 };
 
 const shareOnWhatsApp = () => {
     const temps = document.querySelector("#timer").innerText;
-    const text = `He resolt l'encreuat ${currentTitle} en ${temps}. Intenta-ho tu també! https://lalala.com`;
+    const text = `He resolt l'encreuat ${currentTitle} en ${temps}. Intenta-ho tu també! https://www.encreuada.cat`;
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
 };
