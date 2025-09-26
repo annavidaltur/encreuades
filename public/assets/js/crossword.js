@@ -28,11 +28,13 @@ function startTimer(inici){
     }
     func = setInterval(function() {
         var delta = Date.now() - start; // milliseconds elapsed since start
-        var minutes = Math.floor(delta / 60000);
+        var hours = Math.floor(delta/3600000)
+        var minutes = Math.floor((delta%3600000)/60000);
         var seconds = ((delta % 60000) / 1000).toFixed(0);
-        var text = seconds == 60 ?
-            (minutes+1) + ":00" :
-            minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+        var hStr = hours > 0 ? hours + ":": "";
+        var mStr = (minutes < 10 && hours > 0 ? "0" : "") + minutes;
+        var sStr = (seconds < 10 ? "0" : "") + seconds;
+        var text = hStr + mStr + ":" + sStr;
         document.getElementById("timer").innerHTML = text;
         
         let progress = JSON.parse(localStorage.getItem("progress"));
