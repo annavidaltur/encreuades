@@ -241,6 +241,7 @@ g:hover rect.letter{
   -webkit-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  background-color: #fff;
 }
 
 .firstRow{ border-top: 1px solid #5b5b5b; }

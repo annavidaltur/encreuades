@@ -1,5 +1,4 @@
 import express from 'express';
-import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 dotenv.config({override: true});
 import { S3Client, ListObjectsV2Command, GetObjectCommand } from "@aws-sdk/client-s3";
@@ -28,6 +27,8 @@ const client = new S3Client({
 let cacheMinis = null;
 let cacheMaxis = null;
 let cacheDate = null;
+let cacheMinisContent = {};
+let cacheMaxisContent = {};
 
 // endpoint que torna la llista de crosswords
 app.get("/api/crosswords", async (req, res) => {
@@ -100,7 +101,32 @@ async function getFileContent(key){
 // endpoint crossword concret
 app.get("/api/crossword/:id", async (req, res) => {
   try {
-    var key = req.query.type + "/" + req.params.id + ".ipuz";
+    const type = req.query.type;
+    var key = type + "/" + req.params.id + ".ipuz";
+    
+    if(type === "minis" && cacheMinisContent[key]){
+      const puzzle = cacheMinisContent[key];
+      const response = {
+        title: puzzle.title,
+        author: puzzle.author,
+        dimensions: puzzle.dimensions,
+        puzzle: puzzle.puzzle,
+        clues: puzzle.clues
+      };
+      return res.json(response);
+    }
+    if(type === "maxis" && cacheMaxisContent[key]){
+      const puzzle = cacheMaxisContent[key];
+      const response = {
+        title: puzzle.title,
+        author: puzzle.author,
+        dimensions: puzzle.dimensions,
+        puzzle: puzzle.puzzle,
+        clues: puzzle.clues
+      };
+      return res.json(response);
+    }
+
     const content = await getFileContent(key);
     const puzzle = JSON.parse(content);
     const response = {
@@ -110,6 +136,11 @@ app.get("/api/crossword/:id", async (req, res) => {
       puzzle: puzzle.puzzle,
       clues: puzzle.clues
     };
+
+    if(type === "minis")
+      cacheMinisContent[key] = puzzle;
+    else if(type === "maxis") cacheMaxisContent[key] = puzzle;
+    
     res.json(response);    
   } catch (err) {
     res.status(404).json({ error: err });
@@ -119,7 +150,15 @@ app.get("/api/crossword/:id", async (req, res) => {
 // mostrar solució
 app.get("/api/crossword/:id/solve", async (req, res) => {
   try {
-    var key = req.query.type + "/" + req.params.id + ".ipuz";
+    const type = req.query.type;
+    var key = type + "/" + req.params.id + ".ipuz";
+
+    if(type === "minis" && cacheMinisContent[key]){
+      return res.json(cacheMinisContent[key].solution);
+    } else if(type === "maxis" && cacheMaxisContent[key]){
+      return res.json(cacheMaxisContent[key].solution);
+    }
+
     const content = await getFileContent(key);
     const puzzle = JSON.parse(content);
     res.json(puzzle.solution);
@@ -131,10 +170,22 @@ app.get("/api/crossword/:id/solve", async (req, res) => {
 // mostrar lletra
 app.get("/api/crossword/:id/letter", async (req, res) => {
   try {
-    var key = req.query.type + "/" + req.params.id + ".ipuz";
-    const content = await getFileContent(key);
-    const puzzle = JSON.parse(content);
-    const letter = puzzle.solution[req.query.y][req.query.x];
+    const type = req.query.type;
+    var key = type + "/" + req.params.id + ".ipuz";
+
+    let content = null;
+    if(type === "minis" && cacheMinisContent[key]){
+      content = cacheMinisContent[key];
+    } else if(type === "maxis" && cacheMaxisContent[key]){
+      content = cacheMaxisContent[key];
+    }
+
+    if(content == null) {
+      const file = await getFileContent(key);
+      content = JSON.parse(file);
+    }
+
+    const letter = content.solution[req.query.y][req.query.x];
 
     if(!letter)
       return;
@@ -147,9 +198,21 @@ app.get("/api/crossword/:id/letter", async (req, res) => {
 // check resultat
 app.post("/api/crossword/:id", async (req, res) => {
   try {
-    var key = req.query.type + "/" + req.params.id + ".ipuz";
-    const content = await getFileContent(key);
-    const puzzle = JSON.parse(content);
+    const type = req.query.type;
+    var key = type + "/" + req.params.id + ".ipuz";
+
+    let puzzle = null;
+    if(type === "minis" && cacheMinisContent[key]){
+      puzzle = cacheMinisContent[key];
+    } else if(type === "maxis" && cacheMaxisContent[key]){
+      puzzle = cacheMaxisContent[key];
+    }
+    
+    if(puzzle == null){
+      const file = await getFileContent(key);
+      puzzle = JSON.parse(file);
+    }
+
     const solution = puzzle.solution;
     const width = puzzle.dimensions.width;
     const height = puzzle.dimensions.height;
