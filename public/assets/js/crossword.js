@@ -462,6 +462,9 @@ function onKeydownDesktop(event){
     onKeydown(event, key);    
 }
 
+let modalErrorsInstance = null;
+let modalLocked = false; // bloqueja durant tot el procés (inclòs isOk)
+let modalVisible = false; // indica si el modal està realment obert
 
 function onKeydown(event, key){
     if(lsIsFinished(currentTipus, currentId)) return; // permitim navegar però no modificar el grid
@@ -532,19 +535,49 @@ function onKeydown(event, key){
     const allCells = Array.from(document.querySelectorAll(`.cell`));
     const cellsJugables = allCells.filter((c) => !c.classList.contains("cellBlack"));
     const isGridCompleted = cellsJugables.every(c => c.lastElementChild?.innerText.trim() !== "");
-    
-    if(isGridCompleted){
+
+    if (isGridCompleted) {
+        if (modalLocked || modalVisible) return; // si ja està bloquejat o visible, eixim
+
+        modalLocked = true; // bloquegem immediatament
+
         isOk().then(ok => {
-            if(!ok){
-                // Fi de joc amb errors
-                var modalErrors = new bootstrap.Modal(document.getElementById('modalErrors'))
-                modalErrors.show();
-            } else {
-                // Fi de joc correcte
-                finishCorrect();                            
+            if (!ok) {
+            const modal = getModalErrorsInstance();
+
+            // evita mostrar si ja està visible (per seguretat)
+            if (!modalVisible) {
+                modal.show();
             }
-        })
+            } else {
+            finishCorrect();
+            modalLocked = false;
+            }
+        }).catch(err => {
+            console.error("Error en isOk:", err);
+            modalLocked = false;
+        });
     }
+}
+
+function getModalErrorsInstance() {
+  if (!modalErrorsInstance) {
+    const el = document.getElementById('modalErrors');
+    if (!el) throw new Error("No s'ha trobat #modalErrors a DOM");
+    modalErrorsInstance = bootstrap.Modal.getOrCreateInstance(el);
+
+    // quan es tanque, desbloqueja
+    el.addEventListener('hidden.bs.modal', () => {
+      modalLocked = false;
+      modalVisible = false;
+    });
+
+    // quan s’obri, marquem que està visible
+    el.addEventListener('shown.bs.modal', () => {
+      modalVisible = true;
+    });
+  }
+  return modalErrorsInstance;
 }
 
 function finishCorrect(){
